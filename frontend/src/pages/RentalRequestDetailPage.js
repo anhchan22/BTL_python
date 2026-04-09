@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Container, Box, Typography, Button, Paper, Chip, Grid, Alert,
-  TextField, Dialog, DialogTitle, DialogContent, DialogActions
-} from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 import { useAuth } from '../contexts/AuthContext';
 import { rentalService } from '../services/rentalService';
+import DashboardCard from '../components/DashboardCard';
+import StatusBadge from '../components/StatusBadge';
+import NeuButton from '../components/NeuButton';
 
 export default function RentalRequestDetailPage() {
   const { id } = useParams();
@@ -58,171 +54,445 @@ export default function RentalRequestDetailPage() {
     setDialogOpen(true);
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(price);
+  // ===== STYLE DEFINITIONS =====
+
+  const containerStyle = {
+    minHeight: '100vh',
+    backgroundColor: 'var(--color-background)',
+    padding: 'clamp(1rem, 2vw, 2rem)'
   };
 
-  if (loading) return <Typography>Loading...</Typography>;
-  if (error) return <Alert severity="error">{error}</Alert>;
-  if (!request) return <Typography>Request not found</Typography>;
+  const maxWidthWrapperStyle = {
+    maxWidth: '80rem',
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  };
+
+  const backButtonStyle = {
+    padding: '0.5rem 1rem',
+    borderRadius: 'var(--radius-base)',
+    border: 'none',
+    backgroundColor: 'var(--color-background)',
+    color: 'var(--color-foreground)',
+    fontWeight: '500',
+    fontSize: '0.875rem',
+    cursor: 'pointer',
+    boxShadow: 'var(--shadow-inset)',
+    transition: 'all 300ms ease-out',
+    marginBottom: '2rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
+  };
+
+  const loadingStyle = {
+    textAlign: 'center',
+    padding: '3rem',
+    fontSize: '1rem',
+    color: 'var(--color-muted)'
+  };
+
+  const errorBoxStyle = {
+    backgroundColor: '#FEE2E2',
+    borderLeft: '4px solid #EF4444',
+    padding: '1.5rem',
+    borderRadius: 'var(--radius-base)',
+    marginBottom: '2rem'
+  };
+
+  const errorTextStyle = {
+    color: '#7F1D1D',
+    fontSize: '0.875rem',
+    fontWeight: '500'
+  };
+
+  const headerStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: '2rem',
+    marginBottom: '2rem',
+    flexWrap: 'wrap'
+  };
+
+  const titleStyle = {
+    fontSize: 'clamp(2rem, 5vw, 3rem)',
+    fontWeight: '700',
+    fontFamily: '"Plus Jakarta Sans", sans-serif',
+    color: 'var(--color-foreground)',
+    marginBottom: '0.5rem'
+  };
+
+  const detailsGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: '1.5rem',
+    marginBottom: '2rem'
+  };
+
+  const detailCardStyle = {
+    padding: '1.5rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 'var(--radius-base)',
+    transition: 'all 300ms ease-out'
+  };
+
+  const labelStyle = {
+    fontSize: '0.75rem',
+    fontWeight: '600',
+    color: 'var(--color-muted)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    marginBottom: '0.5rem'
+  };
+
+  const valueStyle = {
+    fontSize: '1.25rem',
+    fontWeight: '600',
+    color: 'var(--color-foreground)'
+  };
+
+  const smallValueStyle = {
+    fontSize: '0.95rem',
+    fontWeight: '500',
+    color: 'var(--color-foreground)',
+    marginTop: '0.25rem'
+  };
+
+  const actionContainerStyle = {
+    display: 'flex',
+    gap: '1rem',
+    marginTop: '2rem',
+    flexWrap: 'wrap'
+  };
+
+  const dialogOverlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: dialogOpen ? 'flex' : 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000
+  };
+
+  const dialogStyle = {
+    backgroundColor: 'var(--color-background)',
+    borderRadius: 'var(--radius-base)',
+    padding: '2rem',
+    maxWidth: '500px',
+    width: '90%',
+    boxShadow: 'var(--shadow-extruded)',
+    animation: 'slideUp 300ms ease-out'
+  };
+
+  const dialogTitleStyle = {
+    fontSize: '1.5rem',
+    fontWeight: '700',
+    color: 'var(--color-foreground)',
+    marginBottom: '1rem'
+  };
+
+  const textareaStyle = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: 'var(--radius-base)',
+    backgroundColor: 'var(--color-background)',
+    border: '1px solid var(--color-muted)',
+    borderOpacity: '0.2',
+    color: 'var(--color-foreground)',
+    fontFamily: '"DM Sans", sans-serif',
+    fontSize: '0.875rem',
+    minHeight: '100px',
+    boxShadow: 'var(--shadow-inset)',
+    transition: 'all 300ms ease-out',
+    marginTop: '1rem',
+    marginBottom: '1rem',
+    resize: 'vertical'
+  };
+
+  const dialogButtonsStyle = {
+    display: 'flex',
+    gap: '1rem',
+    marginTop: '1.5rem'
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price || 0);
+  };
+
+  // ===== RENDER STATES =====
+
+  if (loading) {
+    return (
+      <div style={containerStyle}>
+        <div style={maxWidthWrapperStyle}>
+          <div style={loadingStyle}>Loading rental request...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={containerStyle}>
+        <div style={maxWidthWrapperStyle}>
+          <div style={errorBoxStyle}>
+            <p style={errorTextStyle}>{error}</p>
+          </div>
+          <button
+            style={backButtonStyle}
+            onClick={() => navigate('/rentals')}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = 'var(--shadow-inset-deep)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = 'var(--shadow-inset)';
+            }}
+          >
+            ← Back to Requests
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!request) {
+    return (
+      <div style={containerStyle}>
+        <div style={maxWidthWrapperStyle}>
+          <div style={loadingStyle}>Request not found</div>
+          <button style={backButtonStyle} onClick={() => navigate('/rentals')}>
+            ← Back to Requests
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const canApprove = isAdmin() && request.status === 'PENDING';
   const canCancel = !isAdmin() && request.tenant === user?.id && request.status === 'PENDING';
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/rentals')} sx={{ mb: 2 }}>
-        Back to Requests
-      </Button>
+    <div style={containerStyle}>
+      <div style={maxWidthWrapperStyle}>
+        {/* Back Button */}
+        <button
+          style={backButtonStyle}
+          onClick={() => navigate('/rentals')}
+          onMouseEnter={(e) => {
+            e.target.style.boxShadow = 'var(--shadow-inset-deep)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.boxShadow = 'var(--shadow-inset)';
+          }}
+        >
+          ← Back to Requests
+        </button>
 
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="start" mb={3}>
-          <Typography variant="h4">Rental Request #{request.id}</Typography>
-          <Chip
-            label={request.status}
-            color={
-              request.status === 'APPROVED' ? 'success' :
-              request.status === 'REJECTED' ? 'error' :
-              request.status === 'CANCELLED' ? 'default' : 'warning'
-            }
-          />
-        </Box>
+        {/* Header with Status */}
+        <div style={headerStyle}>
+          <div>
+            <h1 style={titleStyle}>Rental Request #{request.id}</h1>
+          </div>
+          <StatusBadge status={request.status} type="rental" />
+        </div>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Typography variant="subtitle2" color="text.secondary">Zone</Typography>
-            <Typography variant="h6">{request.zone_info?.name}</Typography>
-            <Typography variant="body2">{request.zone_info?.location}</Typography>
-          </Grid>
+        {/* Zone Info Card */}
+        <DashboardCard title="Zone Details" icon="🏭" className="mb-8">
+          <div style={detailsGridStyle}>
+            <div style={detailCardStyle}>
+              <div style={labelStyle}>Zone Name</div>
+              <div style={valueStyle}>{request.zone_info?.name}</div>
+              <div style={smallValueStyle}>{request.zone_info?.location}</div>
+            </div>
+          </div>
+        </DashboardCard>
 
-          {isAdmin() && (
-            <Grid item xs={12} md={6}>
-              <Typography variant="subtitle2" color="text.secondary">Tenant</Typography>
-              <Typography variant="body1">{request.tenant_info?.username}</Typography>
-              <Typography variant="body2">{request.tenant_info?.email}</Typography>
-            </Grid>
-          )}
+        {/* Tenant Info (Admin Only) */}
+        {isAdmin() && request.tenant_info && (
+          <DashboardCard title="Tenant Information" icon="👤" className="mb-8">
+            <div style={detailsGridStyle}>
+              <div style={detailCardStyle}>
+                <div style={labelStyle}>Username</div>
+                <div style={valueStyle}>{request.tenant_info.username}</div>
+              </div>
+              <div style={detailCardStyle}>
+                <div style={labelStyle}>Email</div>
+                <div style={smallValueStyle}>{request.tenant_info.email}</div>
+              </div>
+            </div>
+          </DashboardCard>
+        )}
 
-          <Grid item xs={12} md={6}>
-            <Typography variant="subtitle2" color="text.secondary">Requested Area</Typography>
-            <Typography variant="h6">{request.requested_area} m²</Typography>
-          </Grid>
+        {/* Request Details Card */}
+        <DashboardCard title="Request Details" icon="📋" className="mb-8">
+          <div style={detailsGridStyle}>
+            <div style={detailCardStyle}>
+              <div style={labelStyle}>Requested Area</div>
+              <div style={valueStyle}>{request.requested_area?.toLocaleString() || 0} m²</div>
+            </div>
+            <div style={detailCardStyle}>
+              <div style={labelStyle}>Rental Duration</div>
+              <div style={valueStyle}>{request.rental_duration || 0} months</div>
+            </div>
+            <div style={detailCardStyle}>
+              <div style={labelStyle}>Monthly Cost</div>
+              <div style={valueStyle}>{formatPrice(request.estimated_monthly_cost)}</div>
+            </div>
+            <div style={detailCardStyle}>
+              <div style={labelStyle}>Total Cost</div>
+              <div style={valueStyle}>{formatPrice(request.total_cost)}</div>
+            </div>
+            <div style={detailCardStyle}>
+              <div style={labelStyle}>Requested Date</div>
+              <div style={smallValueStyle}>
+                {request.requested_at ? new Date(request.requested_at).toLocaleString() : 'N/A'}
+              </div>
+            </div>
+          </div>
+        </DashboardCard>
 
-          <Grid item xs={12} md={6}>
-            <Typography variant="subtitle2" color="text.secondary">Rental Duration</Typography>
-            <Typography variant="h6">{request.rental_duration} months</Typography>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Typography variant="subtitle2" color="text.secondary">Monthly Cost</Typography>
-            <Typography variant="h6">{formatPrice(request.estimated_monthly_cost)}</Typography>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Typography variant="subtitle2" color="text.secondary">Total Cost</Typography>
-            <Typography variant="h6">{formatPrice(request.total_cost)}</Typography>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Typography variant="subtitle2" color="text.secondary">Requested Date</Typography>
-            <Typography variant="body1">
-              {new Date(request.requested_at).toLocaleString()}
-            </Typography>
-          </Grid>
-
-          {request.reviewed_at && (
-            <>
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" color="text.secondary">Reviewed Date</Typography>
-                <Typography variant="body1">
+        {/* Review Info (if reviewed) */}
+        {request.reviewed_at && (
+          <DashboardCard title="Review Information" icon="✓" className="mb-8">
+            <div style={detailsGridStyle}>
+              <div style={detailCardStyle}>
+                <div style={labelStyle}>Reviewed Date</div>
+                <div style={smallValueStyle}>
                   {new Date(request.reviewed_at).toLocaleString()}
-                </Typography>
-              </Grid>
+                </div>
+              </div>
               {request.admin_note && (
-                <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary">Admin Note</Typography>
-                  <Typography variant="body1">{request.admin_note}</Typography>
-                </Grid>
+                <div style={{ ...detailCardStyle, gridColumn: '1 / -1' }}>
+                  <div style={labelStyle}>Admin Note</div>
+                  <div style={smallValueStyle}>{request.admin_note}</div>
+                </div>
               )}
-            </>
-          )}
-        </Grid>
+            </div>
+          </DashboardCard>
+        )}
 
+        {/* Action Buttons */}
         {canApprove && (
-          <Box mt={4} display="flex" gap={2}>
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<CheckCircleIcon />}
+          <div style={actionContainerStyle}>
+            <NeuButton
+              variant="primary"
+              size="medium"
               onClick={() => openDialog('approve')}
-              fullWidth
+              style={{ flex: 1 }}
             >
-              Approve Request
-            </Button>
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<CancelIcon />}
+              ✓ Approve Request
+            </NeuButton>
+            <NeuButton
+              variant="secondary"
+              size="medium"
               onClick={() => openDialog('reject')}
-              fullWidth
+              style={{ flex: 1 }}
             >
-              Reject Request
-            </Button>
-          </Box>
+              ✗ Reject Request
+            </NeuButton>
+          </div>
         )}
 
         {canCancel && (
-          <Box mt={4}>
-            <Button
-              variant="outlined"
-              color="error"
+          <div style={actionContainerStyle}>
+            <NeuButton
+              variant="secondary"
+              size="medium"
               onClick={() => openDialog('cancel')}
-              fullWidth
+              style={{ width: '100%' }}
             >
-              Cancel Request
-            </Button>
-          </Box>
+              ✗ Cancel Request
+            </NeuButton>
+          </div>
         )}
-      </Paper>
+      </div>
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {dialogType === 'approve' ? 'Approve Request' :
-           dialogType === 'reject' ? 'Reject Request' :
-           'Cancel Request'}
-        </DialogTitle>
-        <DialogContent>
+      {/* Dialog Overlay */}
+      <div style={dialogOverlayStyle} onClick={() => setDialogOpen(false)}>
+        <div style={dialogStyle} onClick={(e) => e.stopPropagation()}>
+          <div style={dialogTitleStyle}>
+            {dialogType === 'approve' ? '✓ Approve Request' :
+             dialogType === 'reject' ? '✗ Reject Request' :
+             '✗ Cancel Request'}
+          </div>
+
           {dialogType !== 'cancel' && (
-            <TextField
-              fullWidth
-              label="Note (optional)"
-              multiline
-              rows={3}
+            <textarea
+              style={textareaStyle}
+              placeholder="Enter optional note..."
               value={adminNote}
               onChange={(e) => setAdminNote(e.target.value)}
-              margin="normal"
             />
           )}
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+
+          <p style={{ color: 'var(--color-muted)', fontSize: '0.875rem', margin: '0.5rem 0' }}>
             {dialogType === 'approve' ? 'This will reduce the zone\'s available area.' :
              dialogType === 'reject' ? 'The tenant will be notified of rejection.' :
              'You can create a new request later.'}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={() => handleAction(dialogType)}
-            variant="contained"
-            color={dialogType === 'approve' ? 'success' : 'error'}
-          >
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+          </p>
+
+          <div style={dialogButtonsStyle}>
+            <button
+              style={{
+                flex: 1,
+                padding: '0.75rem 1rem',
+                borderRadius: 'var(--radius-base)',
+                border: 'none',
+                backgroundColor: 'var(--color-background)',
+                color: 'var(--color-foreground)',
+                fontWeight: '500',
+                cursor: 'pointer',
+                boxShadow: 'var(--shadow-inset)',
+                transition: 'all 300ms ease-out'
+              }}
+              onClick={() => setDialogOpen(false)}
+              onMouseEnter={(e) => {
+                e.target.style.boxShadow = 'var(--shadow-inset-deep)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.boxShadow = 'var(--shadow-inset)';
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              style={{
+                flex: 1,
+                padding: '0.75rem 1rem',
+                borderRadius: 'var(--radius-base)',
+                border: 'none',
+                backgroundColor: dialogType === 'approve' ? 'var(--color-accent-secondary)' : 'var(--color-accent)',
+                color: 'white',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: 'var(--shadow-extruded)',
+                transition: 'all 300ms ease-out'
+              }}
+              onClick={() => handleAction(dialogType)}
+              onMouseEnter={(e) => {
+                e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
+                e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.boxShadow = 'var(--shadow-extruded)';
+                e.target.style.transform = 'translateY(0)';
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

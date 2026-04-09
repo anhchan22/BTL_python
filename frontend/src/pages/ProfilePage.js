@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import {
-  Container, Box, TextField, Button, Typography, Paper, Alert, Divider, Snackbar
-} from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import * as userService from '../services/userService';
+import DashboardCard from '../components/DashboardCard';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -84,162 +82,349 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
+  // ===== STYLE DEFINITIONS =====
+
+  const containerStyle = {
+    minHeight: '100vh',
+    backgroundColor: 'var(--color-background)',
+    padding: 'clamp(1rem, 2vw, 2rem)'
+  };
+
+  const maxWidthWrapperStyle = {
+    maxWidth: '60rem',
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  };
+
+  const headerStyle = {
+    marginBottom: '2rem'
+  };
+
+  const titleStyle = {
+    fontSize: 'clamp(2rem, 5vw, 2.5rem)',
+    fontWeight: '700',
+    fontFamily: '"Plus Jakarta Sans", sans-serif',
+    color: 'var(--color-foreground)',
+    marginBottom: '0.5rem'
+  };
+
+  const subtitleStyle = {
+    fontSize: '0.95rem',
+    color: 'var(--color-muted)',
+    marginBottom: '2rem'
+  };
+
+  const userInfoCardStyle = {
+    padding: '1.5rem',
+    backgroundColor: 'rgba(108, 99, 255, 0.1)',
+    borderLeft: '4px solid var(--color-accent)',
+    borderRadius: 'var(--radius-base)',
+    marginBottom: '2rem'
+  };
+
+  const userInfoRowStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '0.5rem 0',
+    fontSize: '0.95rem'
+  };
+
+  const userInfoLabelStyle = {
+    fontWeight: '600',
+    color: 'var(--color-muted)'
+  };
+
+  const userInfoValueStyle = {
+    color: 'var(--color-foreground)',
+    fontWeight: '500'
+  };
+
+  const formStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.5rem'
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '0.875rem 1rem',
+    borderRadius: 'var(--radius-base)',
+    border: '1px solid var(--color-muted)',
+    borderOpacity: '0.2',
+    backgroundColor: 'var(--color-background)',
+    color: 'var(--color-foreground)',
+    fontFamily: '"DM Sans", sans-serif',
+    fontSize: '0.95rem',
+    boxShadow: 'var(--shadow-inset)',
+    transition: 'all 300ms ease-out'
+  };
+
+  const disabledInputStyle = {
+    ...inputStyle,
+    opacity: 0.6,
+    cursor: 'not-allowed',
+    backgroundColor: 'rgba(0, 0, 0, 0.05)'
+  };
+
+  const labelStyle = {
+    fontSize: '0.875rem',
+    fontWeight: '600',
+    color: 'var(--color-foreground)',
+    marginBottom: '0.5rem'
+  };
+
+  const fieldWrapperStyle = {
+    display: 'flex',
+    flexDirection: 'column'
+  };
+
+  const errorTextStyle = {
+    fontSize: '0.75rem',
+    color: '#EF4444',
+    marginTop: '0.25rem',
+    fontWeight: '500'
+  };
+
+  const buttonStyle = {
+    padding: '0.875rem 1.5rem',
+    borderRadius: 'var(--radius-base)',
+    border: 'none',
+    fontWeight: '600',
+    fontSize: '0.95rem',
+    cursor: 'pointer',
+    transition: 'all 300ms ease-out',
+    fontFamily: '"DM Sans", sans-serif'
+  };
+
+  const primaryButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: 'var(--color-accent)',
+    color: 'white',
+    boxShadow: 'var(--shadow-extruded)'
+  };
+
+  const secondaryButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: 'var(--color-background)',
+    color: 'var(--color-foreground)',
+    boxShadow: 'var(--shadow-inset)'
+  };
+
+  const dividerStyle = {
+    height: '1px',
+    backgroundColor: 'var(--color-muted)',
+    opacity: 0.2,
+    margin: '0',
+    border: 'none'
+  };
+
+  const snackbarStyle = {
+    position: 'fixed',
+    bottom: '2rem',
+    right: '2rem',
+    padding: '1rem 1.5rem',
+    borderRadius: 'var(--radius-base)',
+    boxShadow: 'var(--shadow-extruded)',
+    zIndex: 999,
+    maxWidth: '400px',
+    animation: 'slideUp 300ms ease-out'
+  };
+
+  const snackbarSuccessStyle = {
+    ...snackbarStyle,
+    backgroundColor: '#10B981',
+    color: 'white',
+    borderLeft: '4px solid #059669'
+  };
+
+  const snackbarErrorStyle = {
+    ...snackbarStyle,
+    backgroundColor: '#EF4444',
+    color: 'white',
+    borderLeft: '4px solid #DC2626'
+  };
+
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ py: 4 }}>
-        <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="h4" gutterBottom>
-            My Profile
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Update your account information
-          </Typography>
+    <div style={containerStyle}>
+      <div style={maxWidthWrapperStyle}>
+        {/* Header */}
+        <div style={headerStyle}>
+          <h1 style={titleStyle}>👤 My Profile</h1>
+          <p style={subtitleStyle}>Manage your account information and security</p>
+        </div>
 
-          <Box sx={{ my: 3, p: 2, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
-            <Typography variant="body2">
-              <strong>Username:</strong> {user?.username}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Role:</strong> {user?.profile?.role}
-            </Typography>
-          </Box>
+        {/* User Info Card */}
+        <div style={userInfoCardStyle}>
+          <div style={userInfoRowStyle}>
+            <span style={userInfoLabelStyle}>Username</span>
+            <span style={userInfoValueStyle}>{user?.username}</span>
+          </div>
+          <div style={userInfoRowStyle}>
+            <span style={userInfoLabelStyle}>Role</span>
+            <span style={userInfoValueStyle}>{user?.profile?.role === 'ADMIN' ? '👑 Admin' : '👤 Tenant'}</span>
+          </div>
+        </div>
 
-          {/* Profile Form */}
-          <Box component="form" onSubmit={handleSaveProfile} sx={{ mb: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Account Information
-            </Typography>
+        {/* Account Information Card */}
+        <DashboardCard title="Account Information" icon="ℹ️">
+          <form style={formStyle} onSubmit={handleSaveProfile}>
+            <div style={fieldWrapperStyle}>
+              <label style={labelStyle}>First Name</label>
+              <input
+                type="text"
+                name="first_name"
+                value={formData.first_name}
+                onChange={handleChange}
+                placeholder="John"
+                style={{ ...inputStyle, borderColor: errors.first_name ? '#EF4444' : 'var(--color-muted)' }}
+              />
+              {errors.first_name && <div style={errorTextStyle}>{errors.first_name}</div>}
+            </div>
 
-            <TextField
-              fullWidth
-              label="First Name"
-              name="first_name"
-              value={formData.first_name}
-              onChange={handleChange}
-              margin="normal"
-              error={!!errors.first_name}
-              helperText={errors.first_name}
-            />
-            <TextField
-              fullWidth
-              label="Last Name"
-              name="last_name"
-              value={formData.last_name}
-              onChange={handleChange}
-              margin="normal"
-              error={!!errors.last_name}
-              helperText={errors.last_name}
-            />
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              margin="normal"
-              disabled
-              helperText="Email cannot be changed"
-            />
-            <TextField
-              fullWidth
-              label="Phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              margin="normal"
-              error={!!errors.phone}
-              helperText={errors.phone}
-            />
-            <TextField
-              fullWidth
-              label="Company Name"
-              name="company_name"
-              value={formData.company_name}
-              onChange={handleChange}
-              margin="normal"
-              error={!!errors.company_name}
-              helperText={errors.company_name}
-            />
+            <div style={fieldWrapperStyle}>
+              <label style={labelStyle}>Last Name</label>
+              <input
+                type="text"
+                name="last_name"
+                value={formData.last_name}
+                onChange={handleChange}
+                placeholder="Doe"
+                style={{ ...inputStyle, borderColor: errors.last_name ? '#EF4444' : 'var(--color-muted)' }}
+              />
+              {errors.last_name && <div style={errorTextStyle}>{errors.last_name}</div>}
+            </div>
 
-            <Button
-              fullWidth
+            <div style={fieldWrapperStyle}>
+              <label style={labelStyle}>Email</label>
+              <input
+                type="email"
+                value={formData.email}
+                disabled
+                style={disabledInputStyle}
+              />
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
+                Email cannot be changed
+              </div>
+            </div>
+
+            <div style={fieldWrapperStyle}>
+              <label style={labelStyle}>Phone</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+1 (555) 123-4567"
+                style={{ ...inputStyle, borderColor: errors.phone ? '#EF4444' : 'var(--color-muted)' }}
+              />
+              {errors.phone && <div style={errorTextStyle}>{errors.phone}</div>}
+            </div>
+
+            <div style={fieldWrapperStyle}>
+              <label style={labelStyle}>Company Name</label>
+              <input
+                type="text"
+                name="company_name"
+                value={formData.company_name}
+                onChange={handleChange}
+                placeholder="Your Company Inc."
+                style={{ ...inputStyle, borderColor: errors.company_name ? '#EF4444' : 'var(--color-muted)' }}
+              />
+              {errors.company_name && <div style={errorTextStyle}>{errors.company_name}</div>}
+            </div>
+
+            <button
               type="submit"
-              variant="contained"
-              size="large"
+              style={primaryButtonStyle}
               disabled={loading}
-              sx={{ mt: 3 }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.target.style.backgroundColor = 'var(--color-accent-light)';
+                  e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
+                  e.target.style.transform = 'translateY(-2px)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'var(--color-accent)';
+                e.target.style.boxShadow = 'var(--shadow-extruded)';
+                e.target.style.transform = 'translateY(0)';
+              }}
             >
-              Save Profile
-            </Button>
-          </Box>
+              {loading ? '⏳ Saving...' : '✓ Save Profile'}
+            </button>
+          </form>
+        </DashboardCard>
 
-          <Divider sx={{ my: 3 }} />
+        {/* Divider */}
+        <div style={dividerStyle}></div>
 
-          {/* Password Change Form */}
-          <Box component="form" onSubmit={handleChangePassword}>
-            <Typography variant="h6" gutterBottom>
-              Change Password
-            </Typography>
+        {/* Password Change Card */}
+        <DashboardCard title="Change Password" icon="🔐">
+          <form style={formStyle} onSubmit={handleChangePassword}>
+            <div style={fieldWrapperStyle}>
+              <label style={labelStyle}>Current Password</label>
+              <input
+                type="password"
+                name="old_password"
+                value={passwordData.old_password}
+                onChange={(e) => handleChange(e, true)}
+                placeholder="••••••••"
+                style={{ ...inputStyle, borderColor: errors.old_password ? '#EF4444' : 'var(--color-muted)' }}
+              />
+              {errors.old_password && <div style={errorTextStyle}>{errors.old_password}</div>}
+            </div>
 
-            <TextField
-              fullWidth
-              label="Current Password"
-              name="old_password"
-              type="password"
-              value={passwordData.old_password}
-              onChange={(e) => handleChange(e, true)}
-              margin="normal"
-              error={!!errors.old_password}
-              helperText={errors.old_password}
-            />
-            <TextField
-              fullWidth
-              label="New Password"
-              name="password"
-              type="password"
-              value={passwordData.password}
-              onChange={(e) => handleChange(e, true)}
-              margin="normal"
-              error={!!errors.password}
-              helperText={errors.password}
-            />
-            <TextField
-              fullWidth
-              label="Confirm New Password"
-              name="password_confirm"
-              type="password"
-              value={passwordData.password_confirm}
-              onChange={(e) => handleChange(e, true)}
-              margin="normal"
-              error={!!errors.password_confirm}
-              helperText={errors.password_confirm}
-            />
+            <div style={fieldWrapperStyle}>
+              <label style={labelStyle}>New Password</label>
+              <input
+                type="password"
+                name="password"
+                value={passwordData.password}
+                onChange={(e) => handleChange(e, true)}
+                placeholder="••••••••"
+                style={{ ...inputStyle, borderColor: errors.password ? '#EF4444' : 'var(--color-muted)' }}
+              />
+              {errors.password && <div style={errorTextStyle}>{errors.password}</div>}
+            </div>
 
-            <Button
-              fullWidth
+            <div style={fieldWrapperStyle}>
+              <label style={labelStyle}>Confirm New Password</label>
+              <input
+                type="password"
+                name="password_confirm"
+                value={passwordData.password_confirm}
+                onChange={(e) => handleChange(e, true)}
+                placeholder="••••••••"
+                style={{ ...inputStyle, borderColor: errors.password_confirm ? '#EF4444' : 'var(--color-muted)' }}
+              />
+              {errors.password_confirm && <div style={errorTextStyle}>{errors.password_confirm}</div>}
+            </div>
+
+            <button
               type="submit"
-              variant="outlined"
-              size="large"
+              style={secondaryButtonStyle}
               disabled={loading}
-              sx={{ mt: 3 }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.target.style.boxShadow = 'var(--shadow-inset-deep)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.boxShadow = 'var(--shadow-inset)';
+              }}
             >
-              Change Password
-            </Button>
-          </Box>
-        </Paper>
-      </Box>
+              {loading ? '⏳ Updating...' : '🔄 Change Password'}
+            </button>
+          </form>
+        </DashboardCard>
+      </div>
 
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Container>
+      {/* Snackbar Notification */}
+      {snackbar.open && (
+        <div style={snackbar.severity === 'success' ? snackbarSuccessStyle : snackbarErrorStyle}>
+          {snackbar.severity === 'success' ? '✓' : '✕'} {snackbar.message}
+        </div>
+      )}
+    </div>
   );
 }
