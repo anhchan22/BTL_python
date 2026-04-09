@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import Navbar from './components/Navbar';
@@ -19,43 +18,16 @@ import RentalRequestDetailPage from './pages/RentalRequestDetailPage';
 import ContractListPage from './pages/ContractListPage';
 import ContractDetailPage from './pages/ContractDetailPage';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 900,
-      lg: 1200,
-      xl: 1536,
-    },
-  },
-  typography: {
-    h4: {
-      fontSize: '2rem',
-      '@media (max-width:600px)': {
-        fontSize: '1.5rem',
-      },
-    },
-  },
-});
+// Import CSS (no more MUI theme provider)
+import './App.css';
 
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+      <BrowserRouter>
         <AuthProvider>
-          <BrowserRouter>
-            <Navbar />
-            <Routes>
+          <Navbar />
+          <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route
@@ -155,10 +127,9 @@ function App() {
               }
             />
             <Route path="/" element={<Navigate to="/dashboard" />} />
-            </Routes>
-          </BrowserRouter>
+          </Routes>
         </AuthProvider>
-      </ThemeProvider>
+      </BrowserRouter>
     </ErrorBoundary>
   );
 }
