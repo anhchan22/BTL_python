@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-  Container, Box, TextField, Button, Typography, Alert, Paper
-} from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import AuthCard from '../components/AuthCard';
+import FormField from '../components/FormField';
+import NeuButton from '../components/NeuButton';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -41,121 +41,217 @@ export default function RegisterPage() {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 8, mb: 4 }}>
-        <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="h4" align="center" gutterBottom>
-            Create Account
-          </Typography>
+    <div className="
+      min-h-screen
+      flex
+      items-center
+      justify-center
+      bg-neu-bg
+      px-4
+      py-8
+    ">
+      <AuthCard>
+        {/* Page Title */}
+        <h1 className="
+          text-3xl
+          sm:text-4xl
+          font-bold
+          font-display
+          text-center
+          text-neu-fg
+          mb-6
+        ">
+          Create Account
+        </h1>
 
-          {/* Info message about TENANT default role */}
-          <Alert severity="info" sx={{ mb: 3 }}>
+        {/* Info Alert - TENANT Role */}
+        <div className="
+          bg-blue-50
+          border-l-4
+          border-blue-500
+          p-4
+          mb-6
+          rounded-lg
+        ">
+          <p className="
+            text-blue-700
+            text-sm
+            font-medium
+          ">
             New accounts are created as <strong>Tenant</strong>.
             Contact an administrator to become an Administrator.
-          </Alert>
+          </p>
+        </div>
 
-          {errors.detail && <Alert severity="error" sx={{ mb: 2 }}>{errors.detail}</Alert>}
+        {/* Error Alert - Server Response */}
+        {errors.detail && (
+          <div className="
+            bg-red-50
+            border-l-4
+            border-red-500
+            p-4
+            mb-6
+            rounded-lg
+          ">
+            <p className="
+              text-red-700
+              text-sm
+              font-medium
+            ">
+              {errors.detail}
+            </p>
+          </div>
+        )}
 
-          <Box component="form" onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Required Fields Section */}
+          <fieldset>
+            <legend className="
+              text-xs
+              font-semibold
+              text-neu-muted
+              uppercase
+              tracking-wider
+              mb-3
+              block
+            ">
+              Required Information
+            </legend>
+
+            <FormField
               label="Username"
               name="username"
+              type="text"
               value={formData.username}
               onChange={handleChange}
-              margin="normal"
+              placeholder="Enter your username"
               required
-              error={!!errors.username}
-              helperText={errors.username?.[0]}
+              error={errors.username ? errors.username[0] : ''}
             />
-            <TextField
-              fullWidth
+
+            <FormField
               label="Email"
               name="email"
               type="email"
               value={formData.email}
               onChange={handleChange}
-              margin="normal"
+              placeholder="Enter your email address"
               required
-              error={!!errors.email}
-              helperText={errors.email?.[0]}
+              error={errors.email ? errors.email[0] : ''}
             />
-            <TextField
-              fullWidth
-              label="First Name"
-              name="first_name"
-              value={formData.first_name}
-              onChange={handleChange}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Last Name"
-              name="last_name"
-              value={formData.last_name}
-              onChange={handleChange}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Company Name (Optional)"
-              name="company_name"
-              value={formData.company_name}
-              onChange={handleChange}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
+
+            <FormField
               label="Password"
               name="password"
               type="password"
               value={formData.password}
               onChange={handleChange}
-              margin="normal"
+              placeholder="Enter your password"
               required
-              error={!!errors.password}
-              helperText={errors.password?.[0]}
+              error={errors.password ? errors.password[0] : ''}
             />
-            <TextField
-              fullWidth
+
+            <FormField
               label="Confirm Password"
               name="password_confirm"
               type="password"
               value={formData.password_confirm}
               onChange={handleChange}
-              margin="normal"
+              placeholder="Confirm your password"
               required
-              error={!!errors.password_confirm}
-              helperText={errors.password_confirm?.[0]}
+              error={errors.password_confirm ? errors.password_confirm[0] : ''}
             />
-            <Button
-              fullWidth
-              type="submit"
-              variant="contained"
-              size="large"
-              disabled={loading}
-              sx={{ mt: 3, mb: 2 }}
-            >
-              {loading ? 'Creating Account...' : 'Register'}
-            </Button>
-          </Box>
+          </fieldset>
 
-          <Typography align="center">
-            Already have an account?{' '}
-            <Link to="/login" style={{ textDecoration: 'none', color: '#1976d2' }}>
-              Login here
-            </Link>
-          </Typography>
-        </Paper>
-      </Box>
-    </Container>
+          {/* Optional Fields Section */}
+          <fieldset>
+            <legend className="
+              text-xs
+              font-semibold
+              text-neu-muted
+              uppercase
+              tracking-wider
+              mb-3
+              mt-6
+              block
+            ">
+              Optional Information
+            </legend>
+
+            <FormField
+              label="First Name"
+              name="first_name"
+              type="text"
+              value={formData.first_name}
+              onChange={handleChange}
+              placeholder="Enter your first name"
+            />
+
+            <FormField
+              label="Last Name"
+              name="last_name"
+              type="text"
+              value={formData.last_name}
+              onChange={handleChange}
+              placeholder="Enter your last name"
+            />
+
+            <FormField
+              label="Phone"
+              name="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Enter your phone number"
+            />
+
+            <FormField
+              label="Company Name"
+              name="company_name"
+              type="text"
+              value={formData.company_name}
+              onChange={handleChange}
+              placeholder="Enter your company name (optional)"
+            />
+          </fieldset>
+
+          {/* Submit Button */}
+          <NeuButton
+            type="submit"
+            variant="primary"
+            size="large"
+            fullWidth
+            disabled={loading}
+            className="mt-6"
+          >
+            {loading ? 'Creating Account...' : 'Register'}
+          </NeuButton>
+        </form>
+
+        {/* Link to Login */}
+        <p className="
+          text-center
+          text-neu-fg
+          text-sm
+          mt-6
+        ">
+          Already have an account?{' '}
+          <Link
+            to="/login"
+            className="
+              text-neu-accent
+              font-medium
+              hover:text-neu-accent-light
+              transition-colors
+              duration-300
+              ease-out
+            "
+          >
+            Login here
+          </Link>
+        </p>
+      </AuthCard>
+    </div>
   );
 }
