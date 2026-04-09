@@ -40,44 +40,98 @@ export default function RegisterPage() {
     setLoading(false);
   };
 
+  const containerStyle = {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'var(--color-background)',
+    padding: '1rem 1rem 2rem 1rem'
+  };
+
+  const titleStyle = {
+    fontSize: '2rem',
+    fontWeight: '700',
+    textAlign: 'center',
+    color: 'var(--color-foreground)',
+    marginBottom: '1.5rem',
+    fontFamily: '"Plus Jakarta Sans", sans-serif'
+  };
+
+  const infoBoxStyle = {
+    backgroundColor: '#EFF6FF',
+    borderLeft: '4px solid #3B82F6',
+    padding: '1rem',
+    marginBottom: '1.5rem',
+    borderRadius: '0.5rem'
+  };
+
+  const infoBoxTextStyle = {
+    color: '#1E40AF',
+    fontSize: '0.875rem',
+    fontWeight: '500'
+  };
+
+  const errorBoxStyle = {
+    backgroundColor: '#FEE2E2',
+    borderLeft: '4px solid #EF4444',
+    padding: '1rem',
+    marginBottom: '1.5rem',
+    borderRadius: '0.5rem'
+  };
+
+  const errorBoxTextStyle = {
+    color: '#7F1D1D',
+    fontSize: '0.875rem',
+    fontWeight: '500'
+  };
+
+  const formStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.25rem'
+  };
+
+  const fieldsetStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem'
+  };
+
+  const legendStyle = {
+    fontSize: '0.75rem',
+    fontWeight: '600',
+    color: 'var(--color-muted)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    marginBottom: '0.75rem',
+    display: 'block'
+  };
+
+  const footerStyle = {
+    textAlign: 'center',
+    color: 'var(--color-foreground)',
+    fontSize: '0.875rem',
+    marginTop: '1.5rem'
+  };
+
+  const linkStyle = {
+    color: 'var(--color-accent)',
+    fontWeight: '500',
+    textDecoration: 'none',
+    transition: 'color 300ms ease-out',
+    cursor: 'pointer'
+  };
+
   return (
-    <div className="
-      min-h-screen
-      flex
-      items-center
-      justify-center
-      bg-neu-bg
-      px-4
-      py-8
-    ">
+    <div style={containerStyle}>
       <AuthCard size="lg">
         {/* Page Title */}
-        <h1 className="
-          text-3xl
-          sm:text-4xl
-          font-bold
-          font-display
-          text-center
-          text-neu-fg
-          mb-6
-        ">
-          Create Account
-        </h1>
+        <h1 style={titleStyle}>Create Account</h1>
 
         {/* Info Alert - TENANT Role */}
-        <div className="
-          bg-blue-50
-          border-l-4
-          border-blue-500
-          p-4
-          mb-6
-          rounded-lg
-        ">
-          <p className="
-            text-blue-700
-            text-sm
-            font-medium
-          ">
+        <div style={infoBoxStyle}>
+          <p style={infoBoxTextStyle}>
             New accounts are created as <strong>Tenant</strong>.
             Contact an administrator to become an Administrator.
           </p>
@@ -85,39 +139,16 @@ export default function RegisterPage() {
 
         {/* Error Alert - Server Response */}
         {errors.detail && (
-          <div className="
-            bg-red-50
-            border-l-4
-            border-red-500
-            p-4
-            mb-6
-            rounded-lg
-          ">
-            <p className="
-              text-red-700
-              text-sm
-              font-medium
-            ">
-              {errors.detail}
-            </p>
+          <div style={errorBoxStyle}>
+            <p style={errorBoxTextStyle}>{errors.detail}</p>
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} style={formStyle}>
           {/* Required Fields Section */}
-          <fieldset className="space-y-4">
-            <legend className="
-              text-xs
-              font-semibold
-              text-neu-muted
-              uppercase
-              tracking-wider
-              mb-3
-              block
-            ">
-              Required Information
-            </legend>
+          <fieldset style={fieldsetStyle}>
+            <legend style={legendStyle}>Required Information</legend>
 
             <FormField
               label="Username"
@@ -165,19 +196,8 @@ export default function RegisterPage() {
           </fieldset>
 
           {/* Optional Fields Section */}
-          <fieldset className="space-y-4">
-            <legend className="
-              text-xs
-              font-semibold
-              text-neu-muted
-              uppercase
-              tracking-wider
-              mb-3
-              mt-6
-              block
-            ">
-              Optional Information
-            </legend>
+          <fieldset style={fieldsetStyle}>
+            <legend style={legendStyle}>Optional Information</legend>
 
             <FormField
               label="First Name"
@@ -223,31 +243,15 @@ export default function RegisterPage() {
             size="large"
             fullWidth
             disabled={loading}
-            className="mt-6"
           >
             {loading ? 'Creating Account...' : 'Register'}
           </NeuButton>
         </form>
 
         {/* Link to Login */}
-        <p className="
-          text-center
-          text-neu-fg
-          text-sm
-          mt-6
-        ">
+        <p style={footerStyle}>
           Already have an account?{' '}
-          <Link
-            to="/login"
-            className="
-              text-neu-accent
-              font-medium
-              hover:text-neu-accent-light
-              transition-colors
-              duration-300
-              ease-out
-            "
-          >
+          <Link to="/login" style={linkStyle}>
             Login here
           </Link>
         </p>

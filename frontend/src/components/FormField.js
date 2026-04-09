@@ -2,7 +2,7 @@ import React from 'react';
 
 /**
  * FormField - Neumorphic input wrapper with label and error message
- * Replaces MUI TextField with native HTML input + custom styling
+ * Replaces MUI TextField with native HTML input + inline styles
  *
  * Features:
  * - Neumorphic inset-deep shadow (carved appearance)
@@ -33,22 +33,50 @@ export default function FormField({
   error = '',
   disabled = false
 }) {
+  const [isFocused, setIsFocused] = React.useState(false);
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '0.875rem',
+    fontWeight: '500',
+    color: 'var(--color-foreground)',
+    marginBottom: '0.5rem'
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: 'var(--radius-base)',
+    backgroundColor: 'var(--color-background)',
+    color: 'var(--color-foreground)',
+    border: 'none',
+    fontFamily: '"DM Sans", sans-serif',
+    fontSize: '1rem',
+    transition: 'all 300ms ease-out',
+    boxShadow: isFocused || error
+      ? error
+        ? 'inset 10px 10px 20px rgb(163, 177, 198, 0.7), inset -10px -10px 20px rgba(255, 255, 255, 0.6), 0 0 0 2px var(--color-background), 0 0 0 4px #EF4444'
+        : 'inset 10px 10px 20px rgb(163, 177, 198, 0.7), inset -10px -10px 20px rgba(255, 255, 255, 0.6), 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-accent)'
+      : 'var(--shadow-inset)',
+    outline: 'none',
+    opacity: disabled ? 0.5 : 1,
+    cursor: disabled ? 'not-allowed' : 'text'
+  };
+
+  const errorStyle = {
+    fontSize: '0.875rem',
+    color: '#EF4444',
+    fontWeight: '500',
+    marginTop: '0.25rem'
+  };
+
   return (
-    <div className="mb-4">
+    <div style={{ marginBottom: '1rem' }}>
       {/* Label */}
       {label && (
-        <label
-          htmlFor={name}
-          className="
-            block
-            text-sm
-            font-medium
-            text-neu-fg
-            mb-2
-          "
-        >
+        <label htmlFor={name} style={labelStyle}>
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span style={{ color: '#EF4444', marginLeft: '0.25rem' }}>*</span>}
         </label>
       )}
 
@@ -59,53 +87,19 @@ export default function FormField({
         type={type}
         value={value}
         onChange={onChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`
-          w-full
-          px-4
-          py-3
-          rounded-neu-base
-          bg-neu-bg
-          text-neu-fg
-          placeholder-neu-muted
-          border-0
-          shadow-neu-inset-deep
-          font-sans
-          text-base
-          transition-all
-          duration-300
-          ease-out
-
-          focus:outline-none
-          focus:shadow-[
-            inset_10px_10px_20px_rgb(163,177,198,0.7),
-            inset_-10px_-10px_20px_rgba(255,255,255,0.6),
-            0_0_0_2px_var(--color-background),
-            0_0_0_4px_var(--color-accent)
-          ]
-
-          disabled:opacity-50
-          disabled:cursor-not-allowed
-
-          ${error ? 'shadow-[inset_10px_10px_20px_rgb(163,177,198,0.7),_inset_-10px_-10px_20px_rgba(255,255,255,0.6),_0_0_0_2px_var(--color-background),_0_0_0_4px_#EF4444]' : ''}
-        `}
+        style={inputStyle}
         aria-invalid={!!error}
         aria-describedby={error ? `${name}-error` : undefined}
       />
 
       {/* Error Message */}
       {error && (
-        <p
-          id={`${name}-error`}
-          className="
-            text-sm
-            text-red-500
-            font-medium
-            mt-1
-          "
-        >
+        <p id={`${name}-error`} style={errorStyle}>
           {error}
         </p>
       )}

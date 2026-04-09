@@ -28,7 +28,6 @@ import React from 'react';
  * @param {string} type - Button type (button, submit, reset)
  * @param {boolean} disabled - Disable button
  * @param {function} onClick - Click handler
- * @param {string} className - Additional Tailwind classes
  */
 export default function NeuButton({
   children,
@@ -37,34 +36,87 @@ export default function NeuButton({
   fullWidth = false,
   type = 'button',
   disabled = false,
-  onClick,
-  className = ''
+  onClick
 }) {
-  const sizeClasses = {
-    small: 'px-4 py-2 text-sm',
-    medium: 'px-6 py-3 text-base',
-    large: 'px-8 py-4 text-base'
+  const [buttonState, setButtonState] = React.useState('normal'); // normal, hover, active
+
+  const sizeConfig = {
+    small: { padding: '0.5rem 1rem', fontSize: '0.875rem' },
+    medium: { padding: '0.75rem 1.5rem', fontSize: '1rem' },
+    large: { padding: '1rem 2rem', fontSize: '1rem' }
   };
 
-  const variantClasses = {
-    primary: `
-      bg-neu-accent
-      text-white
-      hover:bg-neu-accent-light
-      active:bg-neu-accent
-      shadow-neu-extruded
-      hover:shadow-neu-extruded-hover
-      active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),_inset_-2px_-2px_4px_rgba(255,255,255,0.3)]
-    `,
-    secondary: `
-      bg-neu-bg
-      text-neu-fg
-      hover:bg-[#D5DDE5]
-      active:bg-neu-bg
-      shadow-neu-extruded
-      hover:shadow-neu-extruded-hover
-      active:shadow-neu-inset-small
-    `
+  const variantConfig = {
+    primary: {
+      normal: {
+        backgroundColor: 'var(--color-accent)',
+        color: 'white',
+        boxShadow: 'var(--shadow-extruded)'
+      },
+      hover: {
+        backgroundColor: 'var(--color-accent-light)',
+        color: 'white',
+        boxShadow: 'var(--shadow-extruded-hover)',
+        transform: 'translateY(-1px)'
+      },
+      active: {
+        backgroundColor: 'var(--color-accent)',
+        color: 'white',
+        boxShadow: 'inset 4px 4px 8px rgba(0, 0, 0, 0.2), inset -2px -2px 4px rgba(255, 255, 255, 0.3)',
+        transform: 'translateY(0.5px)'
+      }
+    },
+    secondary: {
+      normal: {
+        backgroundColor: 'var(--color-background)',
+        color: 'var(--color-foreground)',
+        boxShadow: 'var(--shadow-extruded)'
+      },
+      hover: {
+        backgroundColor: '#D5DDE5',
+        color: 'var(--color-foreground)',
+        boxShadow: 'var(--shadow-extruded-hover)',
+        transform: 'translateY(-1px)'
+      },
+      active: {
+        backgroundColor: 'var(--color-background)',
+        color: 'var(--color-foreground)',
+        boxShadow: 'var(--shadow-inset-small)',
+        transform: 'translateY(0.5px)'
+      }
+    }
+  };
+
+  const buttonStyle = {
+    ...sizeConfig[size],
+    ...variantConfig[variant][buttonState],
+    borderRadius: 'var(--radius-base)',
+    fontWeight: '500',
+    border: 'none',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '44px',
+    transition: 'all 300ms ease-out',
+    opacity: disabled ? 0.5 : 1,
+    width: fullWidth ? '100%' : 'auto'
+  };
+
+  const handleMouseDown = () => {
+    if (!disabled) setButtonState('active');
+  };
+
+  const handleMouseUp = () => {
+    if (!disabled) setButtonState('hover');
+  };
+
+  const handleMouseEnter = () => {
+    if (!disabled) setButtonState('hover');
+  };
+
+  const handleMouseLeave = () => {
+    setButtonState('normal');
   };
 
   return (
@@ -72,39 +124,11 @@ export default function NeuButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`
-        rounded-neu-base
-        font-medium
-        border-0
-        cursor-pointer
-        inline-flex
-        items-center
-        justify-center
-        min-h-[44px]
-
-        transition-all
-        duration-300
-        ease-out
-
-        hover:-translate-y-[1px]
-        active:translate-y-[0.5px]
-
-        focus:outline-none
-        focus-visible:shadow-[
-          var(--shadow-extruded),
-          0_0_0_2px_var(--color-background),
-          0_0_0_4px_var(--color-accent)
-        ]
-
-        disabled:opacity-50
-        disabled:cursor-not-allowed
-        disabled:transform-none
-
-        ${sizeClasses[size]}
-        ${variantClasses[variant]}
-        ${fullWidth ? 'w-full' : ''}
-        ${className}
-      `}
+      style={buttonStyle}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
     >
       {children}
     </button>

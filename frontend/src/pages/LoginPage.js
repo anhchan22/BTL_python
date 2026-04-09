@@ -31,63 +31,84 @@ export default function LoginPage() {
     setLoading(false);
   };
 
+  const containerStyle = {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'var(--color-background)',
+    padding: '1rem'
+  };
+
+  const titleStyle = {
+    fontSize: '2rem',
+    fontWeight: '700',
+    textAlign: 'center',
+    color: 'var(--color-foreground)',
+    marginBottom: '0.5rem',
+    fontFamily: '"Plus Jakarta Sans", sans-serif'
+  };
+
+  const subtitleStyle = {
+    textAlign: 'center',
+    color: 'var(--color-muted)',
+    fontSize: '0.875rem',
+    marginBottom: '1.5rem'
+  };
+
+  const errorBoxStyle = {
+    backgroundColor: '#FEE2E2',
+    borderLeft: '4px solid #EF4444',
+    padding: '1rem',
+    marginBottom: '1.5rem',
+    borderRadius: '0.5rem'
+  };
+
+  const errorBoxTextStyle = {
+    color: '#7F1D1D',
+    fontSize: '0.875rem',
+    fontWeight: '500'
+  };
+
+  const formStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem'
+  };
+
+  const footerStyle = {
+    textAlign: 'center',
+    color: 'var(--color-foreground)',
+    fontSize: '0.875rem',
+    marginTop: '1.5rem'
+  };
+
+  const linkStyle = {
+    color: 'var(--color-accent)',
+    fontWeight: '500',
+    textDecoration: 'none',
+    transition: 'color 300ms ease-out',
+    cursor: 'pointer'
+  };
+
   return (
-    <div className="
-      min-h-screen
-      flex
-      items-center
-      justify-center
-      bg-neu-bg
-      px-4
-      py-8
-    ">
+    <div style={containerStyle}>
       <AuthCard size="sm">
         {/* Page Title */}
-        <h1 className="
-          text-3xl
-          sm:text-4xl
-          font-bold
-          font-display
-          text-center
-          text-neu-fg
-          mb-2
-        ">
-          Industrial Zone Rental System
-        </h1>
+        <h1 style={titleStyle}>Industrial Zone Rental System</h1>
 
         {/* Subtitle */}
-        <p className="
-          text-center
-          text-neu-muted
-          text-sm
-          sm:text-base
-          mb-6
-        ">
-          Login to your account
-        </p>
+        <p style={subtitleStyle}>Login to your account</p>
 
         {/* Error Alert */}
         {error && (
-          <div className="
-            bg-red-50
-            border-l-4
-            border-red-500
-            p-4
-            mb-6
-            rounded-lg
-          ">
-            <p className="
-              text-red-700
-              text-sm
-              font-medium
-            ">
-              {error}
-            </p>
+          <div style={errorBoxStyle}>
+            <p style={errorBoxTextStyle}>{error}</p>
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={formStyle}>
           <FormField
             label="Username"
             name="username"
@@ -121,24 +142,9 @@ export default function LoginPage() {
         </form>
 
         {/* Link to Register */}
-        <p className="
-          text-center
-          text-neu-fg
-          text-sm
-          mt-6
-        ">
+        <p style={footerStyle}>
           Don't have an account?{' '}
-          <Link
-            to="/register"
-            className="
-              text-neu-accent
-              font-medium
-              hover:text-neu-accent-light
-              transition-colors
-              duration-300
-              ease-out
-            "
-          >
+          <Link to="/register" style={linkStyle}>
             Register here
           </Link>
         </p>
