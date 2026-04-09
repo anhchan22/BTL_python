@@ -50,7 +50,7 @@ export default function RegisterPage() {
       px-4
       py-8
     ">
-      <AuthCard>
+      <AuthCard size="lg">
         {/* Page Title */}
         <h1 className="
           text-3xl
@@ -104,9 +104,9 @@ export default function RegisterPage() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Required Fields Section */}
-          <fieldset>
+          <fieldset className="space-y-4">
             <legend className="
               text-xs
               font-semibold
@@ -165,7 +165,7 @@ export default function RegisterPage() {
           </fieldset>
 
           {/* Optional Fields Section */}
-          <fieldset>
+          <fieldset className="space-y-4">
             <legend className="
               text-xs
               font-semibold

@@ -41,7 +41,7 @@ export default function LoginPage() {
       px-4
       py-8
     ">
-      <AuthCard>
+      <AuthCard size="sm">
         {/* Page Title */}
         <h1 className="
           text-3xl
