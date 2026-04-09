@@ -14,10 +14,18 @@ export default function ZoneListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('name');
   const [filterAvailable, setFilterAvailable] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 6; // 6 cards per page = 2 rows of 3 on desktop
 
   useEffect(() => {
     loadZones();
   }, []);
+
+  // Reset to page 1 when filters/search/sort change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortBy, filterAvailable]);
 
   const loadZones = async () => {
     try {
@@ -53,6 +61,17 @@ export default function ZoneListPage() {
         return a.name.localeCompare(b.name);
     }
   });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(sortedZones.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedZones = sortedZones.slice(startIndex, endIndex);
+
+  // Ensure current page is valid
+  if (currentPage > totalPages && totalPages > 0) {
+    setCurrentPage(totalPages);
+  }
 
   // ===== STYLE DEFINITIONS =====
 
@@ -121,7 +140,8 @@ export default function ZoneListPage() {
   const gridStyle = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gap: 'clamp(1.5rem, 3vw, 2rem)'
+    gap: 'clamp(1.5rem, 3vw, 2rem)',
+    marginBottom: '2rem'
   };
 
   const noResultsStyle = {
@@ -129,6 +149,35 @@ export default function ZoneListPage() {
     padding: '3rem',
     color: 'var(--color-muted)',
     fontSize: '1rem'
+  };
+
+  const paginationContainerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '1rem',
+    padding: '2rem 0'
+  };
+
+  const paginationButtonStyle = (isDisabled, isActive) => ({
+    padding: '0.5rem 1rem',
+    borderRadius: 'var(--radius-base)',
+    border: 'none',
+    backgroundColor: isActive ? 'var(--color-accent)' : 'var(--color-background)',
+    color: isActive ? 'white' : 'var(--color-foreground)',
+    fontWeight: isActive ? '600' : '500',
+    fontSize: '0.875rem',
+    cursor: isDisabled ? 'not-allowed' : 'pointer',
+    opacity: isDisabled ? 0.5 : 1,
+    boxShadow: isActive ? 'var(--shadow-extruded)' : 'var(--shadow-inset)',
+    transition: 'all 300ms ease-out'
+  });
+
+  const paginationInfoStyle = {
+    fontSize: '0.875rem',
+    color: 'var(--color-foreground)',
+    fontWeight: '500',
+    whiteSpace: 'nowrap'
   };
 
   // ===== HANDLERS =====
@@ -148,6 +197,67 @@ export default function ZoneListPage() {
   const handleRetry = () => {
     setError('');
     loadZones();
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      // Scroll to top of zone grid
+      window.scrollTo({ top: 200, behavior: 'smooth' });
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      // Scroll to top of zone grid
+      window.scrollTo({ top: 200, behavior: 'smooth' });
+    }
+  };
+
+  const handlePageClick = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 200, behavior: 'smooth' });
+  };
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5; // Show max 5 page buttons
+
+    if (totalPages <= maxVisible) {
+      // Show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show first, last, and pages around current
+      if (currentPage <= 3) {
+        // Show first 5 pages
+        for (let i = 1; i <= maxVisible; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        // Show last 5 pages
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        // Show pages around current
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    return pages;
   };
 
   return (
@@ -187,17 +297,99 @@ export default function ZoneListPage() {
         {!loading && (
           <>
             {sortedZones.length > 0 ? (
-              <div style={gridStyle}>
-                {sortedZones.map((zone) => (
-                  <ZoneCard
-                    key={zone.id}
-                    zone={zone}
-                    isAdmin={isAdmin()}
-                    onViewDetails={() => handleViewDetails(zone.id)}
-                    onEdit={() => handleEdit(zone.id)}
-                  />
-                ))}
-              </div>
+              <>
+                <div style={gridStyle}>
+                  {paginatedZones.map((zone) => (
+                    <ZoneCard
+                      key={zone.id}
+                      zone={zone}
+                      isAdmin={isAdmin()}
+                      onViewDetails={() => handleViewDetails(zone.id)}
+                      onEdit={() => handleEdit(zone.id)}
+                    />
+                  ))}
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div style={paginationContainerStyle}>
+                    {/* Previous Button */}
+                    <button
+                      style={paginationButtonStyle(currentPage === 1, false)}
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                      onMouseEnter={(e) => {
+                        if (currentPage > 1) {
+                          e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
+                          e.target.style.transform = 'translateY(-2px)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.boxShadow = 'var(--shadow-inset)';
+                        e.target.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      ← Previous
+                    </button>
+
+                    {/* Page Numbers */}
+                    {getPageNumbers().map((page, index) => {
+                      if (page === '...') {
+                        return (
+                          <span key={`ellipsis-${index}`} style={paginationInfoStyle}>
+                            ...
+                          </span>
+                        );
+                      }
+                      return (
+                        <button
+                          key={page}
+                          style={paginationButtonStyle(false, page === currentPage)}
+                          onClick={() => handlePageClick(page)}
+                          onMouseEnter={(e) => {
+                            if (page !== currentPage) {
+                              e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
+                              e.target.style.transform = 'translateY(-2px)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (page !== currentPage) {
+                              e.target.style.boxShadow = 'var(--shadow-inset)';
+                              e.target.style.transform = 'translateY(0)';
+                            }
+                          }}
+                        >
+                          {page}
+                        </button>
+                      );
+                    })}
+
+                    {/* Next Button */}
+                    <button
+                      style={paginationButtonStyle(currentPage === totalPages, false)}
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                      onMouseEnter={(e) => {
+                        if (currentPage < totalPages) {
+                          e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
+                          e.target.style.transform = 'translateY(-2px)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.boxShadow = 'var(--shadow-inset)';
+                        e.target.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      Next →
+                    </button>
+
+                    {/* Page Info */}
+                    <span style={paginationInfoStyle}>
+                      Page {currentPage} of {totalPages}
+                    </span>
+                  </div>
+                )}
+              </>
             ) : (
               <div style={noResultsStyle}>
                 {zones.length === 0
