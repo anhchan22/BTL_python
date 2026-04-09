@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  Container, Box, TextField, Button, Typography, Alert, Paper,
-  FormControl, InputLabel, Select, MenuItem
+  Container, Box, TextField, Button, Typography, Alert, Paper
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -16,7 +15,6 @@ export default function RegisterPage() {
     password_confirm: '',
     first_name: '',
     last_name: '',
-    role: 'TENANT',
     phone: '',
     company_name: ''
   });
@@ -49,6 +47,12 @@ export default function RegisterPage() {
           <Typography variant="h4" align="center" gutterBottom>
             Create Account
           </Typography>
+
+          {/* Info message about TENANT default role */}
+          <Alert severity="info" sx={{ mb: 3 }}>
+            New accounts are created as <strong>Tenant</strong>.
+            Contact an administrator to become an Administrator.
+          </Alert>
 
           {errors.detail && <Alert severity="error" sx={{ mb: 2 }}>{errors.detail}</Alert>}
 
@@ -92,18 +96,6 @@ export default function RegisterPage() {
               onChange={handleChange}
               margin="normal"
             />
-            <FormControl fullWidth margin="normal" required>
-              <InputLabel>Role</InputLabel>
-              <Select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                label="Role"
-              >
-                <MenuItem value="TENANT">Tenant (Renter)</MenuItem>
-                <MenuItem value="ADMIN">Administrator</MenuItem>
-              </Select>
-            </FormControl>
             <TextField
               fullWidth
               label="Phone"

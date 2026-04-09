@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem
+  AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem, Chip
 } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Navbar() {
@@ -45,9 +46,22 @@ export default function Navbar() {
           <Button color="inherit" onClick={() => navigate('/contracts')}>
             Contracts
           </Button>
+          {isAdmin && isAdmin() && (
+            <Button color="inherit" onClick={() => navigate('/admin/users')}>
+              Manage Users
+            </Button>
+          )}
         </Box>
 
-        <Box sx={{ ml: 2 }}>
+        <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Role Badge */}
+          <Chip
+            label={user.profile?.role || 'TENANT'}
+            color={user.profile?.role === 'ADMIN' ? 'primary' : 'default'}
+            size="small"
+            icon={user.profile?.role === 'ADMIN' ? <AdminPanelSettings /> : undefined}
+          />
+
           <IconButton
             size="large"
             onClick={handleMenu}
@@ -62,8 +76,11 @@ export default function Navbar() {
           >
             <MenuItem disabled>
               <Typography variant="body2">
-                {user.username} ({user.profile?.role})
+                {user.username}
               </Typography>
+            </MenuItem>
+            <MenuItem onClick={() => { handleClose(); navigate('/profile'); }}>
+              My Profile
             </MenuItem>
             <MenuItem onClick={() => { handleClose(); navigate('/dashboard'); }}>
               Dashboard

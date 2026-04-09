@@ -8,6 +8,8 @@ import PrivateRoute from './components/PrivateRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import ProfilePage from './pages/ProfilePage';
+import UserManagementPage from './pages/UserManagementPage';
 import ZoneListPage from './pages/ZoneListPage';
 import ZoneDetailPage from './pages/ZoneDetailPage';
 import ZoneFormPage from './pages/ZoneFormPage';
@@ -61,6 +63,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <DashboardPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <ProfilePage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <PrivateRoute requireAdmin={true}>
+                  <UserManagementPage />
                 </PrivateRoute>
               }
             />
