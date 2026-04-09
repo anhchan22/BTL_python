@@ -23,14 +23,13 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True, required=True)
-    role = serializers.ChoiceField(choices=UserProfile.ROLE_CHOICES, required=True)
     phone = serializers.CharField(max_length=15, required=False, allow_blank=True)
     company_name = serializers.CharField(max_length=200, required=False, allow_blank=True)
 
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'password_confirm',
-                  'first_name', 'last_name', 'role', 'phone', 'company_name']
+                  'first_name', 'last_name', 'phone', 'company_name']
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
@@ -40,7 +39,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Remove fields that aren't part of User model
         password_confirm = validated_data.pop('password_confirm')
-        role = validated_data.pop('role')
         phone = validated_data.pop('phone', '')
         company_name = validated_data.pop('company_name', '')
 
@@ -53,8 +51,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             last_name=validated_data.get('last_name', '')
         )
 
-        # Update profile (auto-created by signal)
-        user.profile.role = role
+        # Update profile (auto-created by signal) - always TENANT role
+        user.profile.role = 'TENANT'
         user.profile.phone = phone
         user.profile.company_name = company_name
         user.profile.save()
@@ -175,4 +173,50 @@ class ContractSerializer(serializers.ModelSerializer):
             'is_active', 'days_remaining', 'created_at'
         ]
         read_only_fields = ['id', 'contract_number', 'created_at']
+
+
+class RoleChangeSerializer(serializers.Serializer):
+    """Serializer for changing user role (admin-only)"""
+    role = serializers.ChoiceField(choices=UserProfile.ROLE_CHOICES, required=True)
+
+    def validate_role(self, value):
+        """Validate role is one of allowed choices"""
+        valid_roles = [choice[0] for choice in UserProfile.ROLE_CHOICES]
+        if value not in valid_roles:
+            raise serializers.ValidationError(f"Invalid role. Must be one of: {', '.join(valid_roles)}")
+        return value
+
+
+class ProfileUpdateSerializer(serializers.Serializer):
+    """Serializer for user profile updates"""
+    first_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
+    last_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
+    phone = serializers.CharField(max_length=15, required=False, allow_blank=True)
+    company_name = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    old_password = serializers.CharField(write_only=True, required=False)
+    password = serializers.CharField(write_only=True, required=False, validators=[validate_password])
+    password_confirm = serializers.CharField(write_only=True, required=False)
+
+    def validate(self, attrs):
+        """Validate password change requirements"""
+        password = attrs.get('password')
+        password_confirm = attrs.get('password_confirm')
+        old_password = attrs.get('old_password')
+
+        # If password is provided, old_password and confirm must also be provided
+        if password:
+            if not old_password:
+                raise serializers.ValidationError({
+                    'old_password': 'Current password required to change password'
+                })
+            if not password_confirm:
+                raise serializers.ValidationError({
+                    'password_confirm': 'Password confirmation required'
+                })
+            if password != password_confirm:
+                raise serializers.ValidationError({
+                    'password': "Passwords don't match"
+                })
+
+        return attrs
 

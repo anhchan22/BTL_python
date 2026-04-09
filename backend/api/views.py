@@ -9,9 +9,10 @@ from django.utils import timezone
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from .serializers import (RegisterSerializer, UserSerializer, IndustrialZoneSerializer,
-                          RentalRequestSerializer, RentalRequestCreateSerializer, ContractSerializer)
-from .models import IndustrialZone, RentalRequest, Contract
-from .permissions import IsAdmin
+                          RentalRequestSerializer, RentalRequestCreateSerializer, ContractSerializer,
+                          RoleChangeSerializer, ProfileUpdateSerializer)
+from .models import IndustrialZone, RentalRequest, Contract, UserProfile
+from .permissions import IsAdmin, RoleChangePermission
 
 
 @api_view(['GET'])
@@ -94,6 +95,92 @@ def get_current_user(request):
     return Response({
         'user': UserSerializer(request.user).data
     }, status=status.HTTP_200_OK)
+
+
+@api_view(['PATCH'])
+@permission_classes([RoleChangePermission])
+def change_user_role(request, user_id):
+    """Change user role (admin-only endpoint)"""
+    try:
+        target_user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({
+            'error': 'User not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = RoleChangeSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    new_role = serializer.validated_data['role']
+    old_role = target_user.profile.role
+
+    # Prevent demoting last admin
+    if old_role == 'ADMIN' and new_role == 'TENANT':
+        admin_count = UserProfile.objects.filter(role='ADMIN').count()
+        if admin_count <= 1:
+            return Response({
+                'error': 'Cannot demote the last administrator'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Update role
+    target_user.profile.role = new_role
+    target_user.profile.save()
+
+    action = 'promoted to' if new_role == 'ADMIN' else 'demoted to'
+    message = f"User {target_user.username} {action} {new_role}"
+
+    return Response({
+        'message': message,
+        'user': UserSerializer(target_user).data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_user_profile(request):
+    """Update user's own profile (authenticated users)"""
+    serializer = ProfileUpdateSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    user = request.user
+    validated_data = serializer.validated_data
+
+    # Update basic user fields
+    if 'first_name' in validated_data:
+        user.first_name = validated_data['first_name']
+    if 'last_name' in validated_data:
+        user.last_name = validated_data['last_name']
+
+    # Update password if provided
+    if 'password' in validated_data:
+        old_password = validated_data.get('old_password', '')
+
+        # Verify old password
+        if not user.check_password(old_password):
+            return Response({
+                'error': 'Current password is incorrect'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Set new password
+        user.set_password(validated_data['password'])
+
+    user.save()
+
+    # Update profile fields
+    if 'phone' in validated_data:
+        user.profile.phone = validated_data['phone']
+    if 'company_name' in validated_data:
+        user.profile.company_name = validated_data['company_name']
+
+    user.profile.save()
+
+    return Response({
+        'message': 'Profile updated successfully',
+        'user': UserSerializer(user).data
+    }, status=status.HTTP_200_OK)
+
 
 
 class IndustrialZoneViewSet(viewsets.ModelViewSet):

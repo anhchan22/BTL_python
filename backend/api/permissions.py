@@ -40,3 +40,15 @@ class IsOwnerOrAdmin(permissions.BasePermission):
             return obj.tenant == request.user
 
         return False
+
+
+class RoleChangePermission(permissions.BasePermission):
+    """Allow only admins to change user roles"""
+
+    def has_permission(self, request, view):
+        return (
+            request.user and
+            request.user.is_authenticated and
+            hasattr(request.user, 'profile') and
+            request.user.profile.role == 'ADMIN'
+        )
