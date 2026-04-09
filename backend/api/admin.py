@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserProfile, IndustrialZone, RentalRequest, Contract
+from .models import UserProfile, IndustrialZone, RentalRequest, Contract, ZoneImage, Notification
 
 
 @admin.register(UserProfile)
@@ -51,3 +51,36 @@ class ContractAdmin(admin.ModelAdmin):
     search_fields = ['contract_number', 'tenant__username', 'zone__name']
     readonly_fields = ['contract_number', 'created_at']
 
+
+@admin.register(ZoneImage)
+class ZoneImageAdmin(admin.ModelAdmin):
+    list_display = ['zone', 'display_order', 'image', 'alt_text', 'created_at']
+    list_filter = ['zone', 'created_at']
+    search_fields = ['zone__name', 'alt_text']
+    readonly_fields = ['created_at']
+    ordering = ['zone', 'display_order']
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ['recipient', 'actor', 'verb', 'target_id', 'content_type', 'is_read', 'created_at']
+    list_filter = ['verb', 'content_type', 'is_read', 'created_at']
+    search_fields = ['recipient__username', 'actor__username']
+    readonly_fields = ['created_at']
+    ordering = ['-created_at']
+
+    fieldsets = (
+        ('Notification Info', {
+            'fields': ('recipient', 'actor', 'verb', 'summary')
+        }),
+        ('Target Information', {
+            'fields': ('target_id', 'content_type')
+        }),
+        ('Status', {
+            'fields': ('is_read',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from .models import UserProfile, IndustrialZone, RentalRequest, Contract
+from .models import UserProfile, IndustrialZone, RentalRequest, Contract, ZoneImage, Notification
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -60,17 +60,45 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+# ===== ZONE IMAGE SERIALIZERS (must come before IndustrialZoneSerializer) =====
+
+class ZoneImageSerializer(serializers.ModelSerializer):
+    """Serializer for individual zone images"""
+
+    class Meta:
+        model = ZoneImage
+        fields = ['id', 'image', 'alt_text', 'display_order', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+    def validate(self, data):
+        """Ensure image count doesn't exceed 6"""
+        zone = self.context.get('zone')
+        if zone and not self.instance:  # Creating new image
+            count = ZoneImage.objects.filter(zone=zone).count()
+            if count >= 6:
+                raise serializers.ValidationError(
+                    "Maximum 6 images per zone allowed."
+                )
+        return data
+
+
 class IndustrialZoneSerializer(serializers.ModelSerializer):
     is_fully_rented = serializers.ReadOnlyField()
+    images = ZoneImageSerializer(many=True, read_only=True)
+    image_count = serializers.SerializerMethodField()
 
     class Meta:
         model = IndustrialZone
         fields = [
             'id', 'name', 'location', 'total_area', 'available_area',
             'price_per_sqm', 'description', 'amenities', 'is_available',
-            'is_fully_rented', 'created_at', 'updated_at'
+            'is_fully_rented', 'images', 'image_count', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'images', 'image_count']
+
+    def get_image_count(self, obj):
+        """Return count of images for this zone"""
+        return obj.images.count()
 
     def validate(self, data):
         # Validate available_area <= total_area
@@ -220,3 +248,55 @@ class ProfileUpdateSerializer(serializers.Serializer):
 
         return attrs
 
+
+# ===== NOTIFICATION SERIALIZERS =====
+
+class NotificationSerializer(serializers.ModelSerializer):
+    """Serializer for notifications"""
+    actor_name = serializers.CharField(source='actor.get_full_name', read_only=True)
+    actor_username = serializers.CharField(source='actor.username', read_only=True)
+    verb_display = serializers.CharField(source='get_verb_display', read_only=True)
+    summary = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = [
+            'id',
+            'recipient',
+            'actor',
+            'actor_name',
+            'actor_username',
+            'verb',
+            'verb_display',
+            'target_id',
+            'content_type',
+            'is_read',
+            'created_at',
+            'summary'
+        ]
+        read_only_fields = [
+            'id',
+            'recipient',
+            'actor',
+            'created_at',
+            'summary'
+        ]
+
+
+class NotificationUnreadCountSerializer(serializers.Serializer):
+    """Response serializer for unread notification count"""
+    unread_count = serializers.IntegerField()
+    total_count = serializers.IntegerField()
+
+
+class MarkNotificationsAsReadSerializer(serializers.Serializer):
+    """Request serializer for marking notifications as read"""
+    notification_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False,
+        help_text="List of notification IDs to mark as read. If empty, marks ALL as read."
+    )
+    mark_all = serializers.BooleanField(
+        default=False,
+        help_text="If True, marks all notifications as read"
+    )

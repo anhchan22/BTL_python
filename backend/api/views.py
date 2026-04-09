@@ -7,12 +7,15 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from .serializers import (RegisterSerializer, UserSerializer, IndustrialZoneSerializer,
                           RentalRequestSerializer, RentalRequestCreateSerializer, ContractSerializer,
-                          RoleChangeSerializer, ProfileUpdateSerializer)
-from .models import IndustrialZone, RentalRequest, Contract, UserProfile
+                          RoleChangeSerializer, ProfileUpdateSerializer, ZoneImageSerializer,
+                          NotificationSerializer, NotificationUnreadCountSerializer,
+                          MarkNotificationsAsReadSerializer)
+from .models import IndustrialZone, RentalRequest, Contract, UserProfile, ZoneImage, Notification
 from .permissions import IsAdmin, RoleChangePermission
 
 
@@ -198,10 +201,10 @@ def get_all_users(request):
 class IndustrialZoneViewSet(viewsets.ModelViewSet):
     """
     ViewSet for Industrial Zones
-    - List/Detail: Any authenticated user
+    - List/Detail: Any authenticated user (includes images)
     - Create/Update/Delete: Admin only
     """
-    queryset = IndustrialZone.objects.all()
+    queryset = IndustrialZone.objects.all().prefetch_related('images')
     serializer_class = IndustrialZoneSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'location', 'description', 'amenities']
@@ -410,4 +413,173 @@ class ContractViewSet(viewsets.ReadOnlyModelViewSet):
         contracts = Contract.objects.filter(status='ACTIVE')
         serializer = self.get_serializer(contracts, many=True)
         return Response(serializer.data)
+
+
+# ===== ZONE IMAGE VIEWSET =====
+
+class ZoneImageViewSet(viewsets.ModelViewSet):
+    """
+    API endpoints for managing zone images.
+    - GET /api/zones/{zone_id}/images/ - List images
+    - POST /api/zones/{zone_id}/images/ - Add image (admin)
+    - DELETE /api/zones/{zone_id}/images/{image_id}/ - Delete image (admin)
+    """
+    serializer_class = ZoneImageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """Filter images for specific zone"""
+        zone_id = self.kwargs.get('zone_id')
+        return ZoneImage.objects.filter(zone_id=zone_id)
+
+    def get_serializer_context(self):
+        """Add zone to serializer context"""
+        context = super().get_serializer_context()
+        zone_id = self.kwargs.get('zone_id')
+        if zone_id:
+            context['zone'] = get_object_or_404(IndustrialZone, id=zone_id)
+        return context
+
+    def create(self, request, zone_id=None):
+        """Add a new image to a zone (admin only)"""
+        zone = get_object_or_404(IndustrialZone, id=zone_id)
+
+        # Check permissions (admin only)
+        if request.user.profile.role != 'ADMIN':
+            return Response(
+                {'detail': 'Admin access required to add images.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(zone=zone)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, zone_id=None, pk=None):
+        """Delete an image from a zone (admin only)"""
+        image = get_object_or_404(ZoneImage, id=pk, zone_id=zone_id)
+
+        # Check permissions (admin only)
+        if request.user.profile.role != 'ADMIN':
+            return Response(
+                {'detail': 'Admin access required to delete images.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        image.delete()
+        return Response(
+            {'detail': 'Image deleted successfully'},
+            status=status.HTTP_204_NO_CONTENT
+        )
+
+
+# ===== NOTIFICATION VIEWSET =====
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    """
+    API endpoints for notifications.
+    - GET /api/notifications/ - List user's notifications
+    - GET /api/notifications/unread-count/ - Get unread count
+    - POST /api/notifications/mark-as-read/ - Mark notifications as read
+    """
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.OrderingFilter]
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        """Only return notifications for the logged-in user"""
+        return Notification.objects.filter(recipient=self.request.user)
+
+    @action(detail=False, methods=['get'], url_path='unread-count')
+    def unread_count(self, request):
+        """
+        GET /api/notifications/unread-count/
+        Returns unread notification count for the logged-in user.
+
+        Response:
+        {
+            "unread_count": 3,
+            "total_count": 10
+        }
+        """
+        unread = Notification.objects.filter(
+            recipient=request.user,
+            is_read=False
+        ).count()
+
+        total = Notification.objects.filter(recipient=request.user).count()
+
+        serializer = NotificationUnreadCountSerializer({
+            'unread_count': unread,
+            'total_count': total
+        })
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path='mark-as-read')
+    def mark_as_read(self, request):
+        """
+        POST /api/notifications/mark-as-read/
+
+        Request body options:
+        {
+            "notification_ids": [1, 2, 3],  // Mark specific notifications
+            "mark_all": false
+        }
+        OR
+        {
+            "mark_all": true                // Mark ALL as read
+        }
+
+        Response:
+        {
+            "detail": "3 notifications marked as read",
+            "marked_count": 3
+        }
+        """
+        serializer = MarkNotificationsAsReadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        notification_ids = serializer.validated_data.get('notification_ids', [])
+        mark_all = serializer.validated_data.get('mark_all', False)
+
+        user_notifications = Notification.objects.filter(recipient=request.user)
+
+        if mark_all:
+            # Mark all notifications as read
+            count = user_notifications.filter(is_read=False).update(is_read=True)
+            return Response({
+                'detail': f'{count} notifications marked as read',
+                'marked_count': count
+            })
+
+        elif notification_ids:
+            # Mark specific notifications as read
+            count = user_notifications.filter(
+                id__in=notification_ids,
+                is_read=False
+            ).update(is_read=True)
+            return Response({
+                'detail': f'{count} notifications marked as read',
+                'marked_count': count
+            })
+
+        else:
+            return Response(
+                {'detail': 'Provide either notification_ids or mark_all=true'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=True, methods=['post'], url_path='mark_single')
+    def mark_single(self, request, pk=None):
+        """Mark a single notification as read"""
+        notification = get_object_or_404(
+            Notification,
+            id=pk,
+            recipient=request.user
+        )
+        notification.is_read = True
+        notification.save()
+        return Response(NotificationSerializer(notification).data)
 

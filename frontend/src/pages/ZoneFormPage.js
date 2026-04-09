@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { zoneService } from '../services/zoneService';
+import * as imageService from '../services/imageService';
 import DashboardCard from '../components/DashboardCard';
-import NeuButton from '../components/NeuButton';
 
 export default function ZoneFormPage() {
   const { id } = useParams();
@@ -19,24 +19,53 @@ export default function ZoneFormPage() {
     amenities: '',
     is_available: true
   });
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [imageError, setImageError] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  const loadZone = useCallback(async () => {
+    try {
+      const data = await zoneService.getZone(id);
+      setFormData(data);
+      // Store existing images with full URL
+      if (data.images && data.images.length > 0) {
+        const existingImgs = data.images.map(img => ({
+          id: img.id,
+          image: img.image,
+          url: img.image.startsWith('http')
+            ? img.image
+            : `http://127.0.0.1:8000${img.image}`,
+          alt_text: img.alt_text,
+          display_order: img.display_order,
+          isExisting: true
+        }));
+        setExistingImages(existingImgs);
+      }
+    } catch (err) {
+      setSubmitError('Failed to load zone');
+    }
+  }, [id]);
 
   useEffect(() => {
     if (isEdit) {
       loadZone();
     }
-  }, [id]);
+  }, [id, isEdit, loadZone]);
 
-  const loadZone = async () => {
-    try {
-      const data = await zoneService.getZone(id);
-      setFormData(data);
-    } catch (err) {
-      setSubmitError('Failed to load zone');
-    }
-  };
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach(preview => {
+        if (preview.url && preview.url.startsWith('blob:')) {
+          URL.revokeObjectURL(preview.url);
+        }
+      });
+    };
+  }, [imagePreviews]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -46,18 +75,152 @@ export default function ZoneFormPage() {
     });
   };
 
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+    setImageError('');
+
+    // Calculate total images (existing + new selected + newly added)
+    const totalImages = existingImages.length + selectedImages.length + files.length;
+
+    // Validate image count - max 6 total
+    if (totalImages > 6) {
+      const remaining = 6 - (existingImages.length + selectedImages.length);
+      setImageError(`Maximum 6 images allowed. You have ${existingImages.length + selectedImages.length} images and can add ${Math.max(0, remaining)} more.`);
+      return;
+    }
+
+    // Validate each file
+    const validFiles = [];
+    files.forEach(file => {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        setImageError(`${file.name} is not a valid image file`);
+        return;
+      }
+
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setImageError(`${file.name} is too large (max 5MB)`);
+        return;
+      }
+
+      validFiles.push(file);
+    });
+
+    if (validFiles.length === 0) return;
+
+    // Create previews - use Promise.all to wait for all FileReaders
+    let completedReaders = 0;
+    const newPreviews = [];
+
+    validFiles.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        newPreviews[index] = {
+          file,
+          url: reader.result,
+          name: file.name,
+          isExisting: false
+        };
+        completedReaders++;
+
+        // Once all readers complete, update state
+        if (completedReaders === validFiles.length) {
+          setSelectedImages([...selectedImages, ...validFiles]);
+          setImagePreviews([...imagePreviews, ...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleRemoveImage = (index) => {
+    // Revoke object URL if it's a blob (new image)
+    if (imagePreviews[index].url.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreviews[index].url);
+    }
+
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+    setImageError('');
+  };
+
+  const handleRemoveExistingImage = async (imageId) => {
+    try {
+      setLoading(true);
+      // Delete from backend
+      await imageService.deleteImage(id, imageId);
+      // Remove from state
+      setExistingImages(existingImages.filter(img => img.id !== imageId));
+      setImageError('');
+    } catch (err) {
+      console.error('Failed to delete image:', err);
+      setImageError('Failed to delete image. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
     setSubmitError('');
+    setImageError('');
     setLoading(true);
 
+    // Validate total images (existing + new)
+    const totalImages = existingImages.length + selectedImages.length;
+
+    // For new zones: must have at least 1 image
+    if (!isEdit && totalImages === 0) {
+      setImageError('Please select at least 1 image (minimum 1, maximum 6)');
+      setLoading(false);
+      return;
+    }
+
+    // For existing zones: must have at least 1 image total
+    if (isEdit && totalImages === 0) {
+      setImageError('Zone must have at least 1 image');
+      setLoading(false);
+      return;
+    }
+
+    // Max 6 images
+    if (totalImages > 6) {
+      setImageError('Maximum 6 images allowed');
+      setLoading(false);
+      return;
+    }
+
     try {
+      let zoneId = id;
+
+      // Create or update zone
       if (isEdit) {
         await zoneService.updateZone(id, formData);
       } else {
-        await zoneService.createZone(formData);
+        const response = await zoneService.createZone(formData);
+        zoneId = response.id;
       }
+
+      // Upload ONLY new images (not existing ones)
+      if (selectedImages.length > 0 && zoneId) {
+        for (let i = 0; i < selectedImages.length; i++) {
+          const file = selectedImages[i];
+          try {
+            // Create FormData for multipart file upload
+            const uploadFormData = new FormData();
+            uploadFormData.append('image', file);
+            uploadFormData.append('alt_text', `Zone image ${existingImages.length + i + 1}`);
+            uploadFormData.append('display_order', existingImages.length + i);
+
+            await imageService.addImage(zoneId, uploadFormData);
+          } catch (err) {
+            console.error(`Failed to upload image ${i + 1}:`, err);
+          }
+        }
+      }
+
       navigate('/zones');
     } catch (err) {
       if (err.response?.data) {
@@ -237,6 +400,90 @@ export default function ZoneFormPage() {
     fontWeight: '500'
   };
 
+  // ===== IMAGE UPLOAD STYLES =====
+
+  const imageUploadContainerStyle = {
+    padding: '2rem',
+    backgroundColor: 'rgba(108, 99, 255, 0.08)',
+    borderRadius: 'var(--radius-base)',
+    border: '2px dashed rgba(108, 99, 255, 0.3)',
+    textAlign: 'center',
+    cursor: 'pointer',
+    transition: 'all 300ms ease-out',
+    marginTop: '1rem'
+  };
+
+  const imageUploadLabelStyle = {
+    display: 'block',
+    cursor: 'pointer',
+    color: 'var(--color-foreground)',
+    fontWeight: '600'
+  };
+
+  const imageCountStyle = {
+    fontSize: '0.875rem',
+    color: 'var(--color-muted)',
+    marginTop: '0.5rem',
+    marginBottom: '1rem'
+  };
+
+  const imageBrowseButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    backgroundColor: 'var(--color-accent)',
+    color: 'white',
+    border: 'none',
+    borderRadius: 'var(--radius-base)',
+    cursor: 'pointer',
+    fontWeight: '600',
+    fontSize: '0.9rem',
+    marginTop: '1rem',
+    boxShadow: 'var(--shadow-extruded)',
+    transition: 'all 300ms ease-out'
+  };
+
+  const imagePreviewGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+    gap: '1rem',
+    marginTop: '1.5rem'
+  };
+
+  const imagePreviewItemStyle = {
+    position: 'relative',
+    borderRadius: 'var(--radius-base)',
+    overflow: 'hidden',
+    aspectRatio: '1 / 1',
+    boxShadow: 'var(--shadow-extruded-small)',
+    cursor: 'pointer',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+  };
+
+  const previewImageStyle = {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover'
+  };
+
+  const removeButtonStyle = {
+    position: 'absolute',
+    top: '0.5rem',
+    right: '0.5rem',
+    width: '28px',
+    height: '28px',
+    borderRadius: '50%',
+    backgroundColor: '#EF4444',
+    color: 'white',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '1.2rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+    fontWeight: 'bold',
+    transition: 'all 200ms ease-out'
+  };
+
   return (
     <div style={containerStyle}>
       <div style={maxWidthWrapperStyle}>
@@ -390,6 +637,151 @@ export default function ZoneFormPage() {
               {errors.amenities && <div style={errorTextStyle}>{errors.amenities[0]}</div>}
             </div>
 
+            {/* IMAGE UPLOAD SECTION */}
+            <div style={fieldWrapperStyle}>
+              <label style={labelStyle}>
+                Zone Images <span style={requiredStyle}>*</span> (1-6 images)
+              </label>
+
+              <div
+                style={imageUploadContainerStyle}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.style.backgroundColor = 'rgba(108, 99, 255, 0.15)';
+                  e.currentTarget.style.borderColor = 'rgba(108, 99, 255, 0.6)';
+                }}
+                onDragLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(108, 99, 255, 0.08)';
+                  e.currentTarget.style.borderColor = 'rgba(108, 99, 255, 0.3)';
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.style.backgroundColor = 'rgba(108, 99, 255, 0.08)';
+                  e.currentTarget.style.borderColor = 'rgba(108, 99, 255, 0.3)';
+                  handleImageSelect({ target: { files: e.dataTransfer.files } });
+                }}
+              >
+                <label style={imageUploadLabelStyle}>
+                  📸 Drop images here or click to browse
+                  <div style={imageCountStyle}>
+                    {existingImages.length + selectedImages.length}/6 images total ({existingImages.length} existing, {selectedImages.length} new)
+                  </div>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  style={imageBrowseButtonStyle}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.parentElement.querySelector('input[type="file"]').click();
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = 'var(--color-accent-light)';
+                    e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
+                    e.target.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'var(--color-accent)';
+                    e.target.style.boxShadow = 'var(--shadow-extruded)';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Browse Files
+                </button>
+              </div>
+
+              {imageError && <div style={errorTextStyle}>{imageError}</div>}
+
+              {/* Image Preview Grid - Show both existing and new images */}
+              {(existingImages.length > 0 || imagePreviews.length > 0) && (
+                <div style={imagePreviewGridStyle}>
+                  {/* Existing Images */}
+                  {existingImages.map((image) => (
+                    <div
+                      key={`existing-${image.id}`}
+                      style={imagePreviewItemStyle}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = 'var(--shadow-extruded-hover)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = 'var(--shadow-extruded-small)';
+                      }}
+                    >
+                      <img
+                        src={image.url}
+                        alt={image.alt_text || 'Zone image'}
+                        style={previewImageStyle}
+                      />
+                      <button
+                        type="button"
+                        style={removeButtonStyle}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRemoveExistingImage(image.id);
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'scale(1.15)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'scale(1)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
+                        }}
+                        title="Delete image from zone"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* New Images */}
+                  {imagePreviews.map((preview, index) => (
+                    <div
+                      key={`new-${index}`}
+                      style={imagePreviewItemStyle}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = 'var(--shadow-extruded-hover)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = 'var(--shadow-extruded-small)';
+                      }}
+                    >
+                      <img
+                        src={preview.url}
+                        alt={preview.name}
+                        style={previewImageStyle}
+                      />
+                      <button
+                        type="button"
+                        style={removeButtonStyle}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRemoveImage(index);
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'scale(1.15)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'scale(1)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
+                        }}
+                        title="Remove image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Availability Checkbox */}
             <label style={checkboxContainerStyle}>
               <input
@@ -407,9 +799,9 @@ export default function ZoneFormPage() {
               <button
                 type="submit"
                 style={submitButtonStyle}
-                disabled={loading}
+                disabled={loading || (existingImages.length + selectedImages.length === 0)}
                 onMouseEnter={(e) => {
-                  if (!loading) {
+                  if (!loading && existingImages.length + selectedImages.length > 0) {
                     e.target.style.backgroundColor = 'var(--color-accent-light)';
                     e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
                     e.target.style.transform = 'translateY(-2px)';
@@ -457,7 +849,7 @@ export default function ZoneFormPage() {
           fontSize: '0.9rem',
           lineHeight: '1.6'
         }}>
-          <strong>💡 Tip:</strong> Fill in all required fields marked with an asterisk (*). You can upload multiple images for the zone from the zone detail page after creating it.
+          <strong>💡 Tip:</strong> Upload 1-6 images for your zone. Drag and drop files or click "Browse Files" to select images. You can preview and remove images before submitting.
         </div>
       </div>
     </div>

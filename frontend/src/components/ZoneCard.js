@@ -21,6 +21,14 @@ import ZoneImagePlaceholder from './ZoneImagePlaceholder';
 export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
   const [isHovering, setIsHovering] = React.useState(false);
 
+  // Get the first image if available
+  const firstImage = zone.images && zone.images.length > 0 ? zone.images[0] : null;
+  const imageUrl = firstImage?.image
+    ? (firstImage.image.startsWith('http')
+        ? firstImage.image
+        : `http://127.0.0.1:8000${firstImage.image}`)
+    : null;
+
   const cardStyle = {
     width: '100%',
     backgroundColor: 'var(--color-background)',
@@ -36,8 +44,18 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
 
   const imageContainerStyle = {
     width: '100%',
+    height: '200px',
     overflow: 'hidden',
-    backgroundColor: 'rgba(0, 0, 0, 0.05)'
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 'var(--radius-base) var(--radius-base) 0 0'
+  };
+
+  const imageStyle = {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    transition: 'transform 0.3s ease',
+    transform: isHovering ? 'scale(1.05)' : 'scale(1)'
   };
 
   const contentStyle = {
@@ -151,7 +169,19 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
     >
       {/* Image */}
       <div style={imageContainerStyle}>
-        <ZoneImagePlaceholder zoneId={zone.id} zoneName="🏭" />
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={zone.name}
+            style={imageStyle}
+            onError={(e) => {
+              // If image fails to load, hide it and show placeholder
+              e.target.style.display = 'none';
+            }}
+          />
+        ) : (
+          <ZoneImagePlaceholder zoneId={zone.id} zoneName="🏭" />
+        )}
       </div>
 
       {/* Content */}

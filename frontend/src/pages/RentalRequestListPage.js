@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { rentalService } from '../services/rentalService';
+import * as notificationService from '../services/notificationService';
 import StatusBadge from '../components/StatusBadge';
 import TablePagination from '../components/TablePagination';
 
@@ -15,6 +16,25 @@ export default function RentalRequestListPage() {
 
   const ITEMS_PER_PAGE = 10;
 
+  // ===== NOTIFICATION CLEARING =====
+  // Auto-clear notification badge when user visits Requests page
+  useEffect(() => {
+    const markAllAsRead = async () => {
+      try {
+        // Mark all notifications as read for this user
+        await notificationService.markAsRead(null, true);
+        console.log('Notifications marked as read');
+      } catch (err) {
+        // Silently fail - don't disrupt user experience
+        console.error('Failed to mark notifications as read:', err);
+      }
+    };
+
+    // Call on component mount
+    markAllAsRead();
+  }, []);
+
+  // ===== DATA LOADING =====
   useEffect(() => {
     loadRequests();
   }, []);

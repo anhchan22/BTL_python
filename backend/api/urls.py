@@ -8,6 +8,7 @@ router = DefaultRouter()
 router.register(r'zones', views.IndustrialZoneViewSet, basename='zone')
 router.register(r'rentals', views.RentalRequestViewSet, basename='rental')
 router.register(r'contracts', views.ContractViewSet, basename='contract')
+router.register(r'notifications', views.NotificationViewSet, basename='notification')
 
 urlpatterns = [
     # Include router URLs
@@ -27,4 +28,20 @@ urlpatterns = [
     path('users/', views.get_all_users, name='get-all-users'),
     path('users/<int:user_id>/role/', views.change_user_role, name='change-user-role'),
     path('users/me/profile/', views.update_user_profile, name='update-profile'),
+
+    # Zone image endpoints (nested routes)
+    path('zones/<int:zone_id>/images/',
+         views.ZoneImageViewSet.as_view({
+             'post': 'create',
+             'get': 'list'
+         }),
+         name='zone-images-list'),
+
+    path('zones/<int:zone_id>/images/<int:pk>/',
+         views.ZoneImageViewSet.as_view({
+             'delete': 'destroy',
+             'get': 'retrieve'
+         }),
+         name='zone-image-detail'),
 ]
+

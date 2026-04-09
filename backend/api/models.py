@@ -181,3 +181,101 @@ class Contract(models.Model):
         verbose_name_plural = 'Contracts'
         ordering = ['-created_at']
 
+
+class ZoneImage(models.Model):
+    """
+    Model to store multiple images per Zone.
+    Enforces 1-6 images per zone via validation.
+    """
+    zone = models.ForeignKey(IndustrialZone, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='zone_images/', blank=True, null=True)
+    alt_text = models.CharField(max_length=200, blank=True, null=True)
+    display_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'zone_images'
+        ordering = ['display_order', 'created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['zone', 'image'],
+                name='unique_zone_image',
+                condition=models.Q(image__isnull=False)
+            )
+        ]
+        verbose_name = 'Zone Image'
+        verbose_name_plural = 'Zone Images'
+
+    def __str__(self):
+        return f"{self.zone.name} - Image {self.display_order + 1}"
+
+    def clean(self):
+        """Validate image count per zone (max 6)"""
+        if self.zone:
+            count = ZoneImage.objects.filter(zone=self.zone).exclude(pk=self.pk).count()
+            if count >= 6:
+                raise ValidationError(
+                    f"Zone {self.zone.name} already has maximum 6 images."
+                )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+
+class Notification(models.Model):
+    """
+    Model to store notifications for users.
+    Tracks who did what (verb) to which resource (target_id).
+    """
+    VERB_CHOICES = [
+        ('request_created', 'Sent a rental request'),
+        ('request_approved', 'Approved your rental request'),
+        ('request_rejected', 'Rejected your rental request'),
+        ('contract_created', 'Created a new contract'),
+        ('contract_signed', 'Signed the contract'),
+        ('contract_expired', 'Contract has expired'),
+    ]
+
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    actor = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='actions_notifications'
+    )
+    verb = models.CharField(max_length=30, choices=VERB_CHOICES)
+    target_id = models.IntegerField(help_text="ID of the related request/contract/zone")
+    content_type = models.CharField(
+        max_length=20,
+        choices=[('rental_request', 'Rental Request'), ('contract', 'Contract')],
+        default='rental_request'
+    )
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'notifications'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['recipient', '-created_at']),
+            models.Index(fields=['recipient', 'is_read']),
+        ]
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+
+    def __str__(self):
+        return f"{self.recipient.username} - {self.get_verb_display()}"
+
+    @property
+    def summary(self):
+        """Return human-readable notification message"""
+        actor_name = self.actor.first_name or self.actor.username if self.actor else "System"
+        verb_text = self.get_verb_display()
+        return f"{actor_name} {verb_text} (#{self.target_id})"
+

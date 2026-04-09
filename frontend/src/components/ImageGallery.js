@@ -1,12 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ZoneImagePlaceholder from './ZoneImagePlaceholder';
 
 export default function ImageGallery({ images, zoneId, zoneName }) {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = React.useState(0);
+
+  // Map backend image objects to display format
+  // Backend returns: { id, image: "/media/zone_images/...", alt_text, display_order, created_at }
+  // We need: { url, alt_text, ... }
+  const mapImages = (imgs) => {
+    if (!imgs || imgs.length === 0) return [];
+    return imgs.map(img => ({
+      id: img.id,
+      url: img.image ? (img.image.startsWith('http') ? img.image : `http://127.0.0.1:8000${img.image}`) : null,
+      alt_text: img.alt_text || `Zone image`,
+      display_order: img.display_order
+    }));
+  };
 
   // Use images if available, otherwise show placeholder
-  const hasImages = images && images.length > 0;
-  const displayImages = hasImages ? images : [{ id: zoneId, url: null }];
+  const mappedImages = mapImages(images);
+  const hasImages = mappedImages && mappedImages.length > 0;
+  const displayImages = hasImages ? mappedImages : [{ id: zoneId, url: null }];
   const currentImage = displayImages[selectedImageIndex];
 
   // ===== STYLE DEFINITIONS =====

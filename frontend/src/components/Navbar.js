@@ -1,11 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import * as notificationService from '../services/notificationService';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, logout, isAdmin } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [unreadCount, setUnreadCount] = React.useState(0);
 
   const handleMenuToggle = () => {
     setMenuOpen(!menuOpen);
@@ -20,6 +22,42 @@ export default function Navbar() {
     handleMenuClose();
     navigate('/login');
   };
+
+  // ===== NOTIFICATION POLLING =====
+  React.useEffect(() => {
+    // Skip polling if user is not authenticated
+    if (!user) return;
+
+    // Fetch unread count immediately on mount
+    const fetchUnreadCount = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          console.warn('No access token found in localStorage');
+          return;
+        }
+        const data = await notificationService.getUnreadCount();
+        setUnreadCount(data.unread_count || 0);
+
+        // Automatically clear unread count after 5 seconds
+        if (data.unread_count > 0) {
+          setTimeout(() => setUnreadCount(0), 4000);
+        }
+      } catch (err) {
+        console.error('Failed to fetch unread count:', err);
+        // Don't spam console with repeated errors
+      }
+    };
+
+    // Fetch immediately
+    fetchUnreadCount();
+
+    // Set up polling interval (30 seconds)
+    const intervalId = setInterval(fetchUnreadCount, 30000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
+  }, [user]);
 
   if (!user) return null;
 
@@ -192,8 +230,49 @@ export default function Navbar() {
     margin: '0.5rem 0'
   };
 
+  // ===== NOTIFICATION BADGE STYLES =====
+  const notificationBadgeContainerStyle = {
+    position: 'relative',
+    display: 'inline-block'
+  };
+
+  const notificationBadgeStyle = {
+    position: 'absolute',
+    top: '-8px',
+    right: '-8px',
+    backgroundColor: '#EF4444',
+    color: 'white',
+    borderRadius: '50%',
+    width: '24px',
+    height: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.75rem',
+    fontWeight: '700',
+    boxShadow: '0 0 20px rgba(239, 68, 68, 0.6), 4px 4px 8px rgba(0, 0, 0, 0.3), -2px -2px 6px rgba(255, 255, 255, 0.1)',
+    border: '2px solid rgba(23, 37, 84, 0.95)',
+    zIndex: 10,
+    animation: 'notificationPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
+  };
+
   return (
     <nav style={navbarStyle}>
+      <style>{`
+        @keyframes notificationPop {
+          0% {
+            transform: scale(0);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.2);
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+      `}</style>
       <div style={navContainerStyle}>
         {/* Logo */}
         <div
@@ -230,22 +309,29 @@ export default function Navbar() {
             🏭 Zones
           </button>
 
-          <button
-            style={navLinkStyle}
-            onClick={() => navigate('/rentals')}
-            onMouseEnter={(e) => {
-              e.target.style.color = 'white';
-              e.target.style.backgroundColor = 'rgba(108, 99, 255, 0.2)';
-              e.target.style.boxShadow = '0 0 15px rgba(108, 99, 255, 0.2)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.color = 'rgba(255, 255, 255, 0.85)';
-              e.target.style.backgroundColor = 'transparent';
-              e.target.style.boxShadow = 'none';
-            }}
-          >
-            📋 Requests
-          </button>
+          <div style={notificationBadgeContainerStyle}>
+            <button
+              style={navLinkStyle}
+              onClick={() => navigate('/rentals')}
+              onMouseEnter={(e) => {
+                e.target.style.color = 'white';
+                e.target.style.backgroundColor = 'rgba(108, 99, 255, 0.2)';
+                e.target.style.boxShadow = '0 0 15px rgba(108, 99, 255, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = 'rgba(255, 255, 255, 0.85)';
+                e.target.style.backgroundColor = 'transparent';
+                e.target.style.boxShadow = 'none';
+              }}
+            >
+              📋 Requests
+            </button>
+            {unreadCount > 0 && (
+              <div style={notificationBadgeStyle}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </div>
+            )}
+          </div>
 
           <button
             style={navLinkStyle}
