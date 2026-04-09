@@ -78,6 +78,7 @@ export default function UserManagementPage() {
   };
 
   const canDemote = (targetUser) => {
+    if (!targetUser || !targetUser.profile) return false;
     if (targetUser.profile.role === 'TENANT') return false;
     const adminCount = users.filter(u => u.profile.role === 'ADMIN').length;
     return adminCount > 1;
@@ -178,7 +179,7 @@ export default function UserManagementPage() {
                   ))}
                 </Box>
               </Box>
-              {!canDemote(selectedUser) && selectedUser.profile.role === 'ADMIN' && newRole === 'TENANT' && (
+              {!canDemote(selectedUser) && selectedUser?.profile?.role === 'ADMIN' && newRole === 'TENANT' && (
                 <Alert severity="warning" sx={{ mt: 2 }}>
                   Cannot demote the last administrator
                 </Alert>
@@ -191,7 +192,7 @@ export default function UserManagementPage() {
           <Button
             onClick={handleRoleChange}
             variant="contained"
-            disabled={newRole === selectedUser?.profile.role || !canDemote(selectedUser)}
+            disabled={newRole === selectedUser?.profile?.role || (selectedUser && !canDemote(selectedUser) && selectedUser.profile.role === 'ADMIN' && newRole === 'TENANT')}
           >
             Save
           </Button>
