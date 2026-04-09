@@ -24,6 +24,7 @@ urlpatterns = [
     path('auth/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 
     # User management endpoints
+    path('users/', views.get_all_users, name='get-all-users'),
     path('users/<int:user_id>/role/', views.change_user_role, name='change-user-role'),
     path('users/me/profile/', views.update_user_profile, name='update-profile'),
 ]

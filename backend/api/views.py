@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
 from datetime import date
@@ -179,6 +180,17 @@ def update_user_profile(request):
     return Response({
         'message': 'Profile updated successfully',
         'user': UserSerializer(user).data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdmin])
+def get_all_users(request):
+    """Get all users list (admin-only endpoint)"""
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response({
+        'users': serializer.data
     }, status=status.HTTP_200_OK)
 
 
