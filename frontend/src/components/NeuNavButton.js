@@ -17,74 +17,91 @@ import React from 'react';
  * @param {React.ReactNode} icon - Icon or emoji
  * @param {function} onClick - Click handler
  * @param {boolean} disabled - Disable button
- * @param {string} className - Additional Tailwind classes
  */
 export default function NeuNavButton({
   label,
   icon,
   onClick,
-  disabled = false,
-  className = ''
+  disabled = false
 }) {
+  const [buttonState, setButtonState] = React.useState('normal'); // normal, hover, active
+
+  const stateConfig = {
+    normal: {
+      boxShadow: 'var(--shadow-extruded)',
+      transform: 'translateY(0)'
+    },
+    hover: {
+      boxShadow: 'var(--shadow-extruded-hover)',
+      transform: 'translateY(-4px)'
+    },
+    active: {
+      boxShadow: 'var(--shadow-inset-small)',
+      transform: 'translateY(2px)'
+    }
+  };
+
+  const buttonStyle = {
+    width: '100%',
+    backgroundColor: 'var(--color-background)',
+    color: 'var(--color-foreground)',
+    borderRadius: 'var(--radius-base)',
+    border: 'none',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    padding: 'clamp(1.5rem, 4vw, 2rem)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.75rem',
+    transition: 'all 300ms ease-out',
+    opacity: disabled ? 0.5 : 1,
+    minHeight: '44px',
+    ...stateConfig[buttonState]
+  };
+
+  const iconStyle = {
+    fontSize: '1.875rem'
+  };
+
+  const labelStyle = {
+    fontSize: 'clamp(0.875rem, 2vw, 1rem)',
+    fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: '1.25'
+  };
+
+  const handleMouseEnter = () => {
+    if (!disabled) setButtonState('hover');
+  };
+
+  const handleMouseLeave = () => {
+    setButtonState('normal');
+  };
+
+  const handleMouseDown = () => {
+    if (!disabled) setButtonState('active');
+  };
+
+  const handleMouseUp = () => {
+    if (!disabled) setButtonState('hover');
+  };
+
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`
-        w-full
-        bg-neu-bg
-        text-neu-fg
-        rounded-neu-base
-        shadow-neu-extruded
-        hover:shadow-neu-extruded-hover
-        hover:-translate-y-1
-        active:shadow-neu-inset-small
-        active:translate-y-0.5
-        transition-all
-        duration-300
-        ease-out
-        px-4
-        py-6
-        sm:py-8
-        border-0
-        cursor-pointer
-        flex
-        flex-col
-        items-center
-        justify-center
-        gap-3
-
-        focus:outline-none
-        focus-visible:shadow-[
-          var(--shadow-extruded),
-          0_0_0_2px_var(--color-background),
-          0_0_0_4px_var(--color-accent)
-        ]
-
-        disabled:opacity-50
-        disabled:cursor-not-allowed
-        disabled:transform-none
-
-        ${className}
-      `}
+      style={buttonStyle}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
     >
       {/* Icon */}
-      {icon && (
-        <span className="text-3xl">
-          {icon}
-        </span>
-      )}
+      {icon && <span style={iconStyle}>{icon}</span>}
 
       {/* Label */}
-      <span className="
-        text-sm
-        sm:text-base
-        font-semibold
-        text-center
-        leading-tight
-      ">
-        {label}
-      </span>
+      <span style={labelStyle}>{label}</span>
     </button>
   );
 }

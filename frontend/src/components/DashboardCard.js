@@ -16,74 +16,82 @@ import React from 'react';
  * @param {React.ReactNode} icon - Optional icon for title
  * @param {React.ReactNode} action - Optional action button/element for header
  * @param {React.ReactNode} children - Card content
- * @param {string} className - Additional Tailwind classes
  */
 export default function DashboardCard({
   title,
   icon,
   action,
-  children,
-  className = ''
+  children
 }) {
+  const [isHovering, setIsHovering] = React.useState(false);
+
+  const cardStyle = {
+    width: '100%',
+    backgroundColor: 'var(--color-background)',
+    borderRadius: 'var(--radius-container)',
+    boxShadow: isHovering ? 'var(--shadow-extruded-hover)' : 'var(--shadow-extruded)',
+    transition: 'all 300ms ease-out',
+    padding: 'clamp(1.5rem, 4vw, 2rem)',
+    transform: isHovering ? 'translateY(-4px)' : 'translateY(0)'
+  };
+
+  const headerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '1.5rem',
+    paddingBottom: '1.5rem',
+    borderBottom: '1px solid var(--color-muted)',
+    borderBottomOpacity: '0.2'
+  };
+
+  const titleContainerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem'
+  };
+
+  const iconStyle = {
+    fontSize: 'clamp(1.5rem, 3vw, 2rem)'
+  };
+
+  const titleStyle = {
+    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
+    fontWeight: '700',
+    fontFamily: '"Plus Jakarta Sans", sans-serif',
+    color: 'var(--color-foreground)'
+  };
+
+  const actionStyle = {
+    marginLeft: '1rem'
+  };
+
+  const contentStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem'
+  };
+
   return (
-    <div className={`
-      w-full
-      bg-neu-bg
-      rounded-neu-container
-      shadow-neu-extruded
-      hover:shadow-neu-extruded-hover
-      hover:-translate-y-1
-      transition-all
-      duration-300
-      ease-out
-      p-6
-      sm:p-8
-      ${className}
-    `}>
+    <div
+      style={cardStyle}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
       {/* Header with title and optional action */}
       {title && (
-        <div className="
-          flex
-          items-center
-          justify-between
-          mb-6
-          pb-6
-          border-b
-          border-neu-muted
-          border-opacity-20
-        ">
-          <div className="flex items-center gap-3">
-            {icon && (
-              <span className="
-                text-2xl
-                sm:text-3xl
-              ">
-                {icon}
-              </span>
-            )}
-            <h2 className="
-              text-xl
-              sm:text-2xl
-              font-bold
-              font-display
-              text-neu-fg
-            ">
-              {title}
-            </h2>
+        <div style={headerStyle}>
+          <div style={titleContainerStyle}>
+            {icon && <span style={iconStyle}>{icon}</span>}
+            <h2 style={titleStyle}>{title}</h2>
           </div>
 
-          {action && (
-            <div className="ml-4">
-              {action}
-            </div>
-          )}
+          {action && <div style={actionStyle}>{action}</div>}
         </div>
       )}
 
       {/* Content area */}
-      <div className="space-y-3">
-        {children}
-      </div>
+      <div style={contentStyle}>{children}</div>
     </div>
   );
 }

@@ -39,51 +39,229 @@ export default function DashboardPage() {
     navigate('/login');
   };
 
+  // ===== STYLE DEFINITIONS =====
+
+  const containerStyle = {
+    minHeight: '100vh',
+    backgroundColor: 'var(--color-background)',
+    padding: 'clamp(1rem, 2vw, 2rem)',
+    paddingRight: 'clamp(1rem, 2vw, 2rem)'
+  };
+
+  const maxWidthWrapperStyle = {
+    maxWidth: '80rem',
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  };
+
+  const headerSectionStyle = {
+    marginBottom: '2rem'
+  };
+
+  const welcomeTitleStyle = {
+    fontSize: 'clamp(1.875rem, 5vw, 3rem)',
+    fontWeight: '700',
+    fontFamily: '"Plus Jakarta Sans", sans-serif',
+    color: 'var(--color-foreground)',
+    marginBottom: '0.5rem'
+  };
+
+  const subtitleStyle = {
+    color: 'var(--color-muted)',
+    fontSize: 'clamp(1rem, 2vw, 1.125rem)'
+  };
+
+  const statsGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: 'clamp(1rem, 2vw, 1.5rem)',
+    marginTop: '1.5rem'
+  };
+
+  const errorBoxStyle = {
+    marginBottom: '1.5rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem)',
+    borderRadius: 'var(--radius-base)',
+    backgroundColor: '#FEE2E2',
+    borderLeft: '4px solid #EF4444'
+  };
+
+  const errorTextStyle = {
+    color: '#7F1D1D',
+    fontSize: '0.875rem',
+    fontWeight: '500'
+  };
+
+  const errorRetryButtonStyle = {
+    color: '#DC2626',
+    backgroundColor: 'transparent',
+    border: 'none',
+    fontSize: '0.875rem',
+    fontWeight: '600',
+    marginTop: '0.5rem',
+    cursor: 'pointer',
+    textDecoration: 'underline',
+    transition: 'color 300ms ease-out',
+    padding: 0
+  };
+
+  const quickActionsGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    gap: 'clamp(1rem, 2vw, 1.5rem)',
+    margin: 'clamp(-1.5rem, -4vw, -2rem)',
+    marginTop: 0,
+    padding: 'clamp(1.5rem, 4vw, 2rem)',
+    paddingTop: 0
+  };
+
+  const contractListStyle = {
+    marginBottom: '2rem'
+  };
+
+  const contractItemStyle = (index) => ({
+    padding: '1rem',
+    borderRadius: 'var(--radius-inner)',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    transition: 'background-color 300ms ease-out',
+    cursor: 'pointer',
+    borderLeft: '4px solid var(--color-accent-secondary)',
+    ':hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.5)'
+    }
+  });
+
+  const contractHeaderStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start'
+  };
+
+  const contractTitleStyle = {
+    fontWeight: '600',
+    color: 'var(--color-foreground)',
+    fontSize: '1rem'
+  };
+
+  const contractIdStyle = {
+    color: 'var(--color-muted)',
+    fontSize: '0.875rem',
+    marginTop: '0.25rem'
+  };
+
+  const contractBadgeStyle = {
+    fontSize: '0.75rem',
+    fontWeight: '700',
+    color: 'var(--color-accent-secondary)',
+    backgroundColor: 'rgba(56, 178, 172, 0.2)',
+    padding: '0.25rem 0.75rem',
+    borderRadius: '9999px'
+  };
+
+  const moreContractsStyle = {
+    textAlign: 'center',
+    color: 'var(--color-muted)',
+    fontSize: '0.875rem',
+    marginTop: '1rem',
+    paddingTop: '1rem',
+    borderTop: '1px solid var(--color-muted)',
+    borderTopOpacity: '0.2'
+  };
+
+  const noContractsStyle = {
+    textAlign: 'center',
+    paddingTop: '2rem',
+    paddingBottom: '2rem',
+    color: 'var(--color-muted)'
+  };
+
+  const noContractsLinkStyle = {
+    color: 'var(--color-accent)',
+    fontWeight: '600',
+    backgroundColor: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'color 300ms ease-out',
+    padding: 0
+  };
+
+  const profileGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: 'clamp(1.5rem, 3vw, 2rem)'
+  };
+
+  const profileFieldStyle = {
+    flex: 1
+  };
+
+  const profileLabelStyle = {
+    display: 'block',
+    fontSize: '0.75rem',
+    fontWeight: '600',
+    color: 'var(--color-muted)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    marginBottom: '0.5rem'
+  };
+
+  const profileValueStyle = {
+    color: 'var(--color-foreground)',
+    fontWeight: '500'
+  };
+
+  const profileRoleBadgeStyle = {
+    color: 'var(--color-accent-secondary)',
+    backgroundColor: 'rgba(56, 178, 172, 0.2)',
+    display: 'inline-block',
+    padding: '0.25rem 0.75rem',
+    borderRadius: '9999px',
+    fontSize: '0.875rem'
+  };
+
+  const logoutContainerStyle = {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    paddingTop: '1rem'
+  };
+
+  const viewAllLinkStyle = {
+    color: 'var(--color-accent)',
+    fontWeight: '600',
+    fontSize: '0.875rem',
+    textDecoration: 'underline',
+    backgroundColor: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'color 300ms ease-out',
+    padding: 0
+  };
+
+  // ===== HANDLERS =====
+
+  const handleContractClick = (contractId) => {
+    navigate(`/contracts/${contractId}`);
+  };
+
+  const handleRetryLoadContracts = () => {
+    loadActiveContracts();
+  };
+
   return (
-    <div className="
-      min-h-screen
-      bg-neu-bg
-      px-4
-      py-8
-      sm:px-6
-      lg:px-8
-    ">
-      <div className="
-        max-w-7xl
-        mx-auto
-      ">
+    <div style={containerStyle}>
+      <div style={maxWidthWrapperStyle}>
         {/* ===== HEADER SECTION ===== */}
-        <div className="mb-8">
+        <div style={headerSectionStyle}>
           {/* Welcome Title */}
-          <div className="mb-6">
-            <h1 className="
-              text-4xl
-              sm:text-5xl
-              font-bold
-              font-display
-              text-neu-fg
-              mb-2
-            ">
-              Welcome, {user?.username}! 👋
-            </h1>
-            <p className="
-              text-neu-muted
-              text-base
-              sm:text-lg
-            ">
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h1 style={welcomeTitleStyle}>Welcome, {user?.username}! 👋</h1>
+            <p style={subtitleStyle}>
               {isAdmin() ? '🔧 Admin Dashboard' : '👤 Tenant Dashboard'}
             </p>
           </div>
 
           {/* User Info Cards - Responsive Grid */}
-          <div className="
-            grid
-            grid-cols-1
-            sm:grid-cols-2
-            lg:grid-cols-4
-            gap-4
-            sm:gap-6
-          ">
+          <div style={statsGridStyle}>
             {/* Role Stat */}
             <StatBox
               value={user?.profile?.role || 'N/A'}
@@ -122,33 +300,11 @@ export default function DashboardPage() {
 
         {/* ===== ERROR STATE ===== */}
         {error && (
-          <div className="
-            mb-6
-            p-4
-            sm:p-6
-            rounded-neu-base
-            bg-red-50
-            border-l-4
-            border-red-500
-          ">
-            <p className="
-              text-red-700
-              text-sm
-              sm:text-base
-              font-medium
-            ">
-              {error}
-            </p>
+          <div style={errorBoxStyle}>
+            <p style={errorTextStyle}>{error}</p>
             <button
-              onClick={loadActiveContracts}
-              className="
-                text-red-600
-                hover:text-red-800
-                text-sm
-                font-semibold
-                mt-2
-                underline
-              "
+              onClick={handleRetryLoadContracts}
+              style={errorRetryButtonStyle}
             >
               Try again
             </button>
@@ -156,24 +312,8 @@ export default function DashboardPage() {
         )}
 
         {/* ===== QUICK ACTIONS SECTION ===== */}
-        <DashboardCard
-          title="Quick Actions"
-          icon="⚡"
-          className="mb-8"
-        >
-          <div className="
-            grid
-            grid-cols-1
-            sm:grid-cols-2
-            lg:grid-cols-3
-            gap-4
-            sm:gap-6
-            -m-6
-            sm:-m-8
-            p-6
-            sm:p-8
-            pt-0
-          ">
+        <DashboardCard title="Quick Actions" icon="⚡">
+          <div style={quickActionsGridStyle}>
             {/* View Industrial Zones Button */}
             <NeuNavButton
               label="Industrial Zones"
@@ -230,246 +370,132 @@ export default function DashboardPage() {
 
         {/* ===== ACTIVE CONTRACTS SECTION ===== */}
         {activeContracts.length > 0 && (
-          <DashboardCard
-            title="Active Contracts"
-            icon="📋"
-            action={
-              <button
-                onClick={() => navigate('/contracts')}
-                className="
-                  text-neu-accent
-                  hover:text-neu-accent-light
-                  font-semibold
-                  text-sm
-                  underline
-                  transition-colors
-                  duration-300
-                "
-              >
-                View All →
-              </button>
-            }
-            className="mb-8"
-          >
-            {/* Contract List */}
-            <div className="space-y-3">
-              {activeContracts.slice(0, 5).map((contract, index) => (
-                <div
-                  key={contract.id || index}
-                  className="
-                    p-4
-                    rounded-neu-inner
-                    bg-white
-                    bg-opacity-30
-                    hover:bg-opacity-50
-                    transition-all
-                    duration-300
-                    ease-out
-                    cursor-pointer
-                    border-l-4
-                    border-neu-accent-secondary
-                  "
-                  onClick={() => navigate(`/contracts/${contract.id}`)}
+          <div style={{ marginBottom: '2rem' }}>
+            <DashboardCard
+              title="Active Contracts"
+              icon="📋"
+              action={
+                <button
+                  onClick={() => navigate('/contracts')}
+                  style={viewAllLinkStyle}
+                  onMouseEnter={(e) => (e.target.style.color = 'var(--color-accent-light)')}
+                  onMouseLeave={(e) => (e.target.style.color = 'var(--color-accent)')}
                 >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="
-                        font-semibold
-                        text-neu-fg
-                        text-base
-                      ">
-                        {contract.zone?.name || 'Contract'}
-                      </h3>
-                      <p className="
-                        text-neu-muted
-                        text-sm
-                        mt-1
-                      ">
-                        ID: {contract.id}
-                      </p>
+                  View All →
+                </button>
+              }
+            >
+              {/* Contract List */}
+              <div style={contractListStyle}>
+                {activeContracts.slice(0, 5).map((contract, index) => (
+                  <div
+                    key={contract.id || index}
+                    style={{
+                      ...contractItemStyle(index),
+                      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                      padding: '1rem',
+                      borderRadius: 'var(--radius-inner)',
+                      borderLeft: '4px solid var(--color-accent-secondary)',
+                      marginBottom: index < 4 ? '0.75rem' : 0,
+                      cursor: 'pointer',
+                      transition: 'background-color 300ms ease-out'
+                    }}
+                    onClick={() => handleContractClick(contract.id)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                    }}
+                  >
+                    <div style={contractHeaderStyle}>
+                      <div>
+                        <h3 style={contractTitleStyle}>
+                          {contract.zone?.name || 'Contract'}
+                        </h3>
+                        <p style={contractIdStyle}>ID: {contract.id}</p>
+                      </div>
+                      <span style={contractBadgeStyle}>ACTIVE</span>
                     </div>
-                    <span className="
-                      text-xs
-                      font-bold
-                      text-neu-accent-secondary
-                      bg-neu-accent-secondary
-                      bg-opacity-20
-                      px-3
-                      py-1
-                      rounded-full
-                    ">
-                      ACTIVE
-                    </span>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Show more indicator */}
-            {activeContracts.length > 5 && (
-              <div className="
-                text-center
-                text-neu-muted
-                text-sm
-                mt-4
-                pt-4
-                border-t
-                border-neu-muted
-                border-opacity-20
-              ">
-                +{activeContracts.length - 5} more contract{activeContracts.length - 5 !== 1 ? 's' : ''}
+                ))}
               </div>
-            )}
-          </DashboardCard>
+
+              {/* Show more indicator */}
+              {activeContracts.length > 5 && (
+                <div style={moreContractsStyle}>
+                  +{activeContracts.length - 5} more contract
+                  {activeContracts.length - 5 !== 1 ? 's' : ''}
+                </div>
+              )}
+            </DashboardCard>
+          </div>
         )}
 
         {/* No Active Contracts State */}
         {!loading && activeContracts.length === 0 && (
-          <DashboardCard
-            title="Active Contracts"
-            icon="📋"
-            className="mb-8"
-          >
-            <div className="
-              text-center
-              py-8
-              text-neu-muted
-            ">
-              <p className="text-base mb-4">
-                You don't have any active contracts yet.
-              </p>
-              <button
-                onClick={() => navigate('/rental-requests')}
-                className="
-                  text-neu-accent
-                  hover:text-neu-accent-light
-                  font-semibold
-                  transition-colors
-                  duration-300
-                "
-              >
-                Create a Rental Request
-              </button>
-            </div>
-          </DashboardCard>
+          <div style={{ marginBottom: '2rem' }}>
+            <DashboardCard title="Active Contracts" icon="📋">
+              <div style={noContractsStyle}>
+                <p style={{ fontSize: '1rem', marginBottom: '1rem' }}>
+                  You don't have any active contracts yet.
+                </p>
+                <button
+                  onClick={() => navigate('/rental-requests')}
+                  style={noContractsLinkStyle}
+                  onMouseEnter={(e) =>
+                    (e.target.style.color = 'var(--color-accent-light)')
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.color = 'var(--color-accent)')
+                  }
+                >
+                  Create a Rental Request
+                </button>
+              </div>
+            </DashboardCard>
+          </div>
         )}
 
-        {/* ===== USER DETAILS SECTION (Optional) ===== */}
-        <DashboardCard
-          title="Profile Information"
-          icon="👤"
-          className="mb-8"
-        >
-          <div className="
-            grid
-            grid-cols-1
-            sm:grid-cols-2
-            gap-6
-          ">
-            {/* Email */}
-            <div>
-              <label className="
-                block
-                text-xs
-                font-semibold
-                text-neu-muted
-                uppercase
-                tracking-wider
-                mb-2
-              ">
-                Email
-              </label>
-              <p className="
-                text-neu-fg
-                font-medium
-              ">
-                {user?.email}
-              </p>
-            </div>
+        {/* ===== USER DETAILS SECTION ===== */}
+        <div style={{ marginBottom: '2rem' }}>
+          <DashboardCard title="Profile Information" icon="👤">
+            <div style={profileGridStyle}>
+              {/* Email */}
+              <div style={profileFieldStyle}>
+                <label style={profileLabelStyle}>Email</label>
+                <p style={profileValueStyle}>{user?.email}</p>
+              </div>
 
-            {/* Phone */}
-            {user?.profile?.phone && (
-              <div>
-                <label className="
-                  block
-                  text-xs
-                  font-semibold
-                  text-neu-muted
-                  uppercase
-                  tracking-wider
-                  mb-2
-                ">
-                  Phone
-                </label>
-                <p className="
-                  text-neu-fg
-                  font-medium
-                ">
-                  {user.profile.phone}
+              {/* Phone */}
+              {user?.profile?.phone && (
+                <div style={profileFieldStyle}>
+                  <label style={profileLabelStyle}>Phone</label>
+                  <p style={profileValueStyle}>{user.profile.phone}</p>
+                </div>
+              )}
+
+              {/* Company Name */}
+              {user?.profile?.company_name && (
+                <div style={profileFieldStyle}>
+                  <label style={profileLabelStyle}>Company</label>
+                  <p style={profileValueStyle}>{user.profile.company_name}</p>
+                </div>
+              )}
+
+              {/* Role */}
+              <div style={profileFieldStyle}>
+                <label style={profileLabelStyle}>Role</label>
+                <p style={{ ...profileValueStyle, ...profileRoleBadgeStyle }}>
+                  {user?.profile?.role}
                 </p>
               </div>
-            )}
-
-            {/* Company Name */}
-            {user?.profile?.company_name && (
-              <div>
-                <label className="
-                  block
-                  text-xs
-                  font-semibold
-                  text-neu-muted
-                  uppercase
-                  tracking-wider
-                  mb-2
-                ">
-                  Company
-                </label>
-                <p className="
-                  text-neu-fg
-                  font-medium
-                ">
-                  {user.profile.company_name}
-                </p>
-              </div>
-            )}
-
-            {/* Role */}
-            <div>
-              <label className="
-                block
-                text-xs
-                font-semibold
-                text-neu-muted
-                uppercase
-                tracking-wider
-                mb-2
-              ">
-                Role
-              </label>
-              <p className="
-                text-neu-fg
-                font-medium
-                inline-block
-                px-3
-                py-1
-                rounded-full
-                bg-neu-accent-secondary
-                bg-opacity-20
-                text-neu-accent-secondary
-                text-sm
-              ">
-                {user?.profile?.role}
-              </p>
             </div>
-          </div>
-        </DashboardCard>
+          </DashboardCard>
+        </div>
 
         {/* ===== LOGOUT SECTION ===== */}
-        <div className="
-          flex
-          justify-end
-          pt-4
-        ">
+        <div style={logoutContainerStyle}>
           <NeuButton
             variant="secondary"
             size="medium"

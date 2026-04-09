@@ -16,73 +16,71 @@ import React from 'react';
  * @param {string} label - Descriptive label for the stat
  * @param {string} variant - Color variant (default, success, info, warning)
  * @param {React.ReactNode} icon - Optional icon to display (emoji or component)
- * @param {string} className - Additional Tailwind classes
  */
 export default function StatBox({
   value,
   label,
   variant = 'default',
-  icon,
-  className = ''
+  icon
 }) {
-  const variantClasses = {
-    default: 'text-neu-accent',
-    success: 'text-neu-accent-secondary',
-    info: 'text-blue-500',
-    warning: 'text-amber-500'
+  const [isHovering, setIsHovering] = React.useState(false);
+
+  const variantColorMap = {
+    default: 'var(--color-accent)',
+    success: 'var(--color-accent-secondary)',
+    info: '#3B82F6',
+    warning: '#FBBF24'
+  };
+
+  const containerStyle = {
+    width: '100%',
+    backgroundColor: 'var(--color-background)',
+    borderRadius: 'var(--radius-base)',
+    boxShadow: isHovering ? 'var(--shadow-extruded-hover)' : 'var(--shadow-extruded)',
+    transition: 'all 300ms ease-out',
+    padding: '1.5rem',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    transform: isHovering ? 'translateY(-4px)' : 'translateY(0)'
+  };
+
+  const iconStyle = {
+    fontSize: '1.875rem',
+    color: variantColorMap[variant]
+  };
+
+  const valueStyle = {
+    fontSize: 'clamp(2rem, 5vw, 3rem)',
+    fontWeight: '700',
+    fontFamily: '"Plus Jakarta Sans", sans-serif',
+    color: 'var(--color-foreground)',
+    lineHeight: '1.2'
+  };
+
+  const labelStyle = {
+    fontSize: 'clamp(0.875rem, 2vw, 1rem)',
+    fontWeight: '500',
+    color: 'var(--color-muted)',
+    textAlign: 'center'
   };
 
   return (
-    <div className={`
-      w-full
-      bg-neu-bg
-      rounded-neu-base
-      shadow-neu-extruded
-      hover:shadow-neu-extruded-hover
-      hover:-translate-y-1
-      transition-all
-      duration-300
-      ease-out
-      p-6
-      flex
-      flex-col
-      items-center
-      justify-center
-      gap-2
-      ${className}
-    `}>
+    <div
+      style={containerStyle}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
       {/* Icon (optional) */}
-      {icon && (
-        <div className={`
-          text-3xl
-          ${variantClasses[variant]}
-        `}>
-          {icon}
-        </div>
-      )}
+      {icon && <div style={iconStyle}>{icon}</div>}
 
       {/* Value - Large number */}
-      <div className={`
-        text-4xl
-        sm:text-5xl
-        font-bold
-        font-display
-        text-neu-fg
-        leading-tight
-      `}>
-        {value}
-      </div>
+      <div style={valueStyle}>{value}</div>
 
       {/* Label - Descriptive text */}
-      <div className={`
-        text-sm
-        sm:text-base
-        font-medium
-        text-neu-muted
-        text-center
-      `}>
-        {label}
-      </div>
+      <div style={labelStyle}>{label}</div>
     </div>
   );
 }
