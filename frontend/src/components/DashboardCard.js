@@ -29,10 +29,13 @@ export default function DashboardCard({
     width: '100%',
     backgroundColor: 'var(--color-background)',
     borderRadius: 'var(--radius-container)',
-    boxShadow: isHovering ? 'var(--shadow-extruded-hover)' : 'var(--shadow-extruded)',
-    transition: 'all 300ms ease-out',
+    boxShadow: isHovering
+      ? '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(108, 99, 255, 0.1)'
+      : 'var(--shadow-extruded)',
+    transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
     padding: 'clamp(1.5rem, 4vw, 2rem)',
-    transform: isHovering ? 'translateY(-4px)' : 'translateY(0)'
+    transform: isHovering ? 'translateY(-5px) scale(1.01)' : 'translateY(0) scale(1)',
+    willChange: 'transform, box-shadow'
   };
 
   const headerStyle = {
@@ -41,8 +44,7 @@ export default function DashboardCard({
     justifyContent: 'space-between',
     marginBottom: '1.5rem',
     paddingBottom: '1.5rem',
-    borderBottom: '1px solid var(--color-muted)',
-    borderBottomOpacity: '0.2'
+    borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
   };
 
   const titleContainerStyle = {

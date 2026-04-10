@@ -60,8 +60,10 @@ export default function StatusBadge({ status, type = 'rental' }) {
   const vietnameseStatus = getStatusVN(status);
 
   const badgeStyle = {
-    display: 'inline-block',
-    padding: '0.375rem 0.75rem',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.4rem',
+    padding: '0.4rem 0.875rem',
     borderRadius: '9999px',
     backgroundColor: colors.bg,
     color: colors.text,
@@ -69,7 +71,9 @@ export default function StatusBadge({ status, type = 'rental' }) {
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
   };
 
   return <span style={badgeStyle}>{vietnameseStatus}</span>;

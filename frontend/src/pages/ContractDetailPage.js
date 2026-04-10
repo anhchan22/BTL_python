@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, HourglassIcon, Building2, FileText, CalendarDays, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { contractService } from '../services/contractService';
 import DashboardCard from '../components/DashboardCard';
 import StatusBadge from '../components/StatusBadge';
 import NeuButton from '../components/NeuButton';
+import { translations, formatPriceVND, formatDateVN } from '../utils/vietnamese-translations';
 
 export default function ContractDetailPage() {
   const { id } = useParams();
@@ -30,12 +32,7 @@ export default function ContractDetailPage() {
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price || 0);
+    return formatPriceVND(price);
   };
 
   const calculateProgress = () => {
@@ -188,7 +185,7 @@ export default function ContractDetailPage() {
     return (
       <div style={containerStyle}>
         <div style={maxWidthWrapperStyle}>
-          <div style={loadingStyle}>Loading contract...</div>
+          <div style={loadingStyle}>{translations.loadingContract}</div>
         </div>
       </div>
     );
@@ -210,8 +207,11 @@ export default function ContractDetailPage() {
             onMouseLeave={(e) => {
               e.target.style.boxShadow = 'var(--shadow-inset)';
             }}
+            title="Back to contracts"
+            aria-label="Back to contracts"
           >
-            ← Back to Contracts
+            <ArrowLeft size={18} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+            {translations.backToContracts}
           </button>
         </div>
       </div>
@@ -222,9 +222,9 @@ export default function ContractDetailPage() {
     return (
       <div style={containerStyle}>
         <div style={maxWidthWrapperStyle}>
-          <div style={loadingStyle}>Contract not found</div>
+          <div style={loadingStyle}>{translations.contractNotFound}</div>
           <button style={backButtonStyle} onClick={() => navigate('/contracts')}>
-            ← Back to Contracts
+            ← {translations.backToContracts}
           </button>
         </div>
       </div>
@@ -247,15 +247,15 @@ export default function ContractDetailPage() {
             e.target.style.boxShadow = 'var(--shadow-inset)';
           }}
         >
-          ← Back to Contracts
+          ← {translations.backToContracts}
         </button>
 
         {/* Header with Status */}
         <div style={headerStyle}>
           <div>
-            <h1 style={titleStyle}>Contract {contract.contract_number}</h1>
+            <h1 style={titleStyle}>{translations.contractTitle.replace('{n}', contract.contract_number)}</h1>
             <p style={subtitleStyle}>
-              Created: {new Date(contract.created_at).toLocaleDateString()}
+              {translations.created}: {formatDateVN(contract.created_at)}
             </p>
           </div>
           <StatusBadge status={contract.status} type="contract" />
@@ -263,16 +263,16 @@ export default function ContractDetailPage() {
 
         {/* Tenant Info (Admin Only) */}
         {isAdmin() && contract.tenant_info && (
-          <DashboardCard title="Tenant Information" icon="👤" className="mb-8">
+          <DashboardCard title={translations.tenantInformation} icon={<User size={24} strokeWidth={2} />}  className="mb-8">
             <div style={detailsGridStyle}>
               <div style={detailCardStyle}>
-                <div style={labelStyle}>Username</div>
+                <div style={labelStyle}>{translations.username}</div>
                 <div style={valueStyle}>{contract.tenant_info.username}</div>
                 <div style={smallValueStyle}>{contract.tenant_info.email}</div>
               </div>
               {contract.tenant_info?.profile?.company_name && (
                 <div style={detailCardStyle}>
-                  <div style={labelStyle}>Company</div>
+                  <div style={labelStyle}>{translations.company}</div>
                   <div style={smallValueStyle}>{contract.tenant_info.profile.company_name}</div>
                 </div>
               )}
@@ -281,10 +281,10 @@ export default function ContractDetailPage() {
         )}
 
         {/* Zone Info Card */}
-        <DashboardCard title="Industrial Zone" icon="🏭" className="mb-8">
+        <DashboardCard title={translations.industrialZoneSection} icon={<Building2 size={24} strokeWidth={2} />} className="mb-8">
           <div style={detailsGridStyle}>
             <div style={detailCardStyle}>
-              <div style={labelStyle}>Zone Name</div>
+              <div style={labelStyle}>{translations.zone}</div>
               <div style={valueStyle}>{contract.zone_info?.name}</div>
               <div style={smallValueStyle}>{contract.zone_info?.location}</div>
             </div>
@@ -292,7 +292,7 @@ export default function ContractDetailPage() {
         </DashboardCard>
 
         {/* Contract Terms Card */}
-        <DashboardCard title="Contract Terms" icon="📋" className="mb-8">
+        <DashboardCard title={translations.contractTerms} icon={<FileText size={24} strokeWidth={2} />}  className="mb-8">
           <div style={detailsGridStyle}>
             <div style={detailCardStyle}>
               <div style={labelStyle}>Contracted Area</div>
@@ -314,7 +314,7 @@ export default function ContractDetailPage() {
         </DashboardCard>
 
         {/* Timeline Card */}
-        <DashboardCard title="Timeline" icon="📅" className="mb-8">
+        <DashboardCard title="Timeline" icon={<CalendarDays size={24} strokeWidth={2} />} className="mb-8">
           <div style={detailsGridStyle}>
             <div style={detailCardStyle}>
               <div style={labelStyle}>Start Date</div>
@@ -333,7 +333,7 @@ export default function ContractDetailPage() {
 
         {/* Contract Progress (if Active) */}
         {contract.status === 'ACTIVE' && (
-          <DashboardCard title="Contract Progress" icon="⏳" className="mb-8">
+          <DashboardCard title="Contract Progress" icon={<HourglassIcon size={24} strokeWidth={2} />} className="mb-8">
             <div style={{ marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                 <span style={{ color: 'var(--color-muted)', fontSize: '0.875rem', fontWeight: '500' }}>

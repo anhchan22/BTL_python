@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Check, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { rentalService } from '../services/rentalService';
 import DashboardCard from '../components/DashboardCard';
 import StatusBadge from '../components/StatusBadge';
 import NeuButton from '../components/NeuButton';
+import { translations, formatPriceVND, formatDateVN } from '../utils/vietnamese-translations';
 
 export default function RentalRequestDetailPage() {
   const { id } = useParams();
@@ -221,12 +223,7 @@ export default function RentalRequestDetailPage() {
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price || 0);
+    return formatPriceVND(price);
   };
 
   // ===== RENDER STATES =====
@@ -235,7 +232,7 @@ export default function RentalRequestDetailPage() {
     return (
       <div style={containerStyle}>
         <div style={maxWidthWrapperStyle}>
-          <div style={loadingStyle}>Loading rental request...</div>
+          <div style={loadingStyle}>{translations.loadingRequest}</div>
         </div>
       </div>
     );
@@ -257,8 +254,11 @@ export default function RentalRequestDetailPage() {
             onMouseLeave={(e) => {
               e.target.style.boxShadow = 'var(--shadow-inset)';
             }}
+            title="Back to requests"
+            aria-label="Back to requests"
           >
-            ← Back to Requests
+            <ArrowLeft size={18} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+            {translations.backToRequests}
           </button>
         </div>
       </div>
@@ -269,9 +269,10 @@ export default function RentalRequestDetailPage() {
     return (
       <div style={containerStyle}>
         <div style={maxWidthWrapperStyle}>
-          <div style={loadingStyle}>Request not found</div>
+          <div style={loadingStyle}>{translations.requestNotFound || 'Request not found'}</div>
           <button style={backButtonStyle} onClick={() => navigate('/rentals')}>
-            ← Back to Requests
+            <ArrowLeft size={18} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+            {translations.backToRequests}
           </button>
         </div>
       </div>
@@ -295,22 +296,22 @@ export default function RentalRequestDetailPage() {
             e.target.style.boxShadow = 'var(--shadow-inset)';
           }}
         >
-          ← Back to Requests
+          ← {translations.backToRequests}
         </button>
 
         {/* Header with Status */}
         <div style={headerStyle}>
           <div>
-            <h1 style={titleStyle}>Rental Request #{request.id}</h1>
+            <h1 style={titleStyle}>{translations.rentalRequestTitle.replace('{n}', request.id)}</h1>
           </div>
           <StatusBadge status={request.status} type="rental" />
         </div>
 
         {/* Zone Info Card */}
-        <DashboardCard title="Zone Details" icon="🏭" className="mb-8">
+        <DashboardCard title={translations.zoneDetailsSection} icon="🏭" className="mb-8">
           <div style={detailsGridStyle}>
             <div style={detailCardStyle}>
-              <div style={labelStyle}>Zone Name</div>
+              <div style={labelStyle}>{translations.zone}</div>
               <div style={valueStyle}>{request.zone_info?.name}</div>
               <div style={smallValueStyle}>{request.zone_info?.location}</div>
             </div>
@@ -319,14 +320,14 @@ export default function RentalRequestDetailPage() {
 
         {/* Tenant Info (Admin Only) */}
         {isAdmin() && request.tenant_info && (
-          <DashboardCard title="Tenant Information" icon="👤" className="mb-8">
+          <DashboardCard title={translations.tenantInformation} icon="👤" className="mb-8">
             <div style={detailsGridStyle}>
               <div style={detailCardStyle}>
-                <div style={labelStyle}>Username</div>
+                <div style={labelStyle}>{translations.username}</div>
                 <div style={valueStyle}>{request.tenant_info.username}</div>
               </div>
               <div style={detailCardStyle}>
-                <div style={labelStyle}>Email</div>
+                <div style={labelStyle}>{translations.email}</div>
                 <div style={smallValueStyle}>{request.tenant_info.email}</div>
               </div>
             </div>
@@ -334,28 +335,28 @@ export default function RentalRequestDetailPage() {
         )}
 
         {/* Request Details Card */}
-        <DashboardCard title="Request Details" icon="📋" className="mb-8">
+        <DashboardCard title={translations.requestDetails} icon="📋" className="mb-8">
           <div style={detailsGridStyle}>
             <div style={detailCardStyle}>
-              <div style={labelStyle}>Requested Area</div>
-              <div style={valueStyle}>{request.requested_area?.toLocaleString() || 0} m²</div>
+              <div style={labelStyle}>{translations.requestedAreaLabel}</div>
+              <div style={valueStyle}>{request.requested_area?.toLocaleString('vi-VN') || 0} m²</div>
             </div>
             <div style={detailCardStyle}>
-              <div style={labelStyle}>Rental Duration</div>
-              <div style={valueStyle}>{request.rental_duration || 0} months</div>
+              <div style={labelStyle}>{translations.rentalDuration}</div>
+              <div style={valueStyle}>{request.rental_duration || 0} {translations.months || 'months'}</div>
             </div>
             <div style={detailCardStyle}>
-              <div style={labelStyle}>Monthly Cost</div>
-              <div style={valueStyle}>{formatPrice(request.estimated_monthly_cost)}</div>
+              <div style={labelStyle}>{translations.monthlyCost}</div>
+              <div style={valueStyle}>{formatPriceVND(request.estimated_monthly_cost)}</div>
             </div>
             <div style={detailCardStyle}>
-              <div style={labelStyle}>Total Cost</div>
-              <div style={valueStyle}>{formatPrice(request.total_cost)}</div>
+              <div style={labelStyle}>{translations.totalCost}</div>
+              <div style={valueStyle}>{formatPriceVND(request.total_cost)}</div>
             </div>
             <div style={detailCardStyle}>
-              <div style={labelStyle}>Requested Date</div>
+              <div style={labelStyle}>{translations.requestedDate}</div>
               <div style={smallValueStyle}>
-                {request.requested_at ? new Date(request.requested_at).toLocaleString() : 'N/A'}
+                {request.requested_at ? formatDateVN(request.requested_at) : 'N/A'}
               </div>
             </div>
           </div>
@@ -363,17 +364,17 @@ export default function RentalRequestDetailPage() {
 
         {/* Review Info (if reviewed) */}
         {request.reviewed_at && (
-          <DashboardCard title="Review Information" icon="✓" className="mb-8">
+          <DashboardCard title={translations.reviewInformation} icon={<Check size={24} strokeWidth={2} />} className="mb-8">
             <div style={detailsGridStyle}>
               <div style={detailCardStyle}>
-                <div style={labelStyle}>Reviewed Date</div>
+                <div style={labelStyle}>{translations.reviewedDate}</div>
                 <div style={smallValueStyle}>
-                  {new Date(request.reviewed_at).toLocaleString()}
+                  {formatDateVN(request.reviewed_at)}
                 </div>
               </div>
               {request.admin_note && (
                 <div style={{ ...detailCardStyle, gridColumn: '1 / -1' }}>
-                  <div style={labelStyle}>Admin Note</div>
+                  <div style={labelStyle}>{translations.adminNote}</div>
                   <div style={smallValueStyle}>{request.admin_note}</div>
                 </div>
               )}
@@ -390,7 +391,8 @@ export default function RentalRequestDetailPage() {
               onClick={() => openDialog('approve')}
               style={{ flex: 1 }}
             >
-              ✓ Approve Request
+              <Check size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+              {translations.approveRequest}
             </NeuButton>
             <NeuButton
               variant="secondary"
@@ -398,7 +400,8 @@ export default function RentalRequestDetailPage() {
               onClick={() => openDialog('reject')}
               style={{ flex: 1 }}
             >
-              ✗ Reject Request
+              <X size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+              {translations.rejectRequest}
             </NeuButton>
           </div>
         )}
@@ -411,7 +414,8 @@ export default function RentalRequestDetailPage() {
               onClick={() => openDialog('cancel')}
               style={{ width: '100%' }}
             >
-              ✗ Cancel Request
+              <X size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+              {translations.cancelRequest}
             </NeuButton>
           </div>
         )}
@@ -421,24 +425,28 @@ export default function RentalRequestDetailPage() {
       <div style={dialogOverlayStyle} onClick={() => setDialogOpen(false)}>
         <div style={dialogStyle} onClick={(e) => e.stopPropagation()}>
           <div style={dialogTitleStyle}>
-            {dialogType === 'approve' ? '✓ Approve Request' :
-             dialogType === 'reject' ? '✗ Reject Request' :
-             '✗ Cancel Request'}
+            {dialogType === 'approve' ? (
+              <><Check size={20} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />{translations.approveRequest}</>
+            ) : dialogType === 'reject' ? (
+              <><X size={20} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />{translations.rejectRequest}</>
+            ) : (
+              <><X size={20} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />{translations.cancelRequest}</>
+            )}
           </div>
 
           {dialogType !== 'cancel' && (
             <textarea
               style={textareaStyle}
-              placeholder="Enter optional note..."
+              placeholder={translations.enterOptionalNote}
               value={adminNote}
               onChange={(e) => setAdminNote(e.target.value)}
             />
           )}
 
           <p style={{ color: 'var(--color-muted)', fontSize: '0.875rem', margin: '0.5rem 0' }}>
-            {dialogType === 'approve' ? 'This will reduce the zone\'s available area.' :
-             dialogType === 'reject' ? 'The tenant will be notified of rejection.' :
-             'You can create a new request later.'}
+            {dialogType === 'approve' ? translations.reduceAreaMessage :
+             dialogType === 'reject' ? translations.notifyRejectionMessage :
+             translations.createNewRequestMessage}
           </p>
 
           <div style={dialogButtonsStyle}>
@@ -463,7 +471,7 @@ export default function RentalRequestDetailPage() {
                 e.target.style.boxShadow = 'var(--shadow-inset)';
               }}
             >
-              Cancel
+              {translations.cancel}
             </button>
             <button
               style={{
@@ -488,7 +496,7 @@ export default function RentalRequestDetailPage() {
                 e.target.style.transform = 'translateY(0)';
               }}
             >
-              Confirm
+              {translations.confirm}
             </button>
           </div>
         </div>

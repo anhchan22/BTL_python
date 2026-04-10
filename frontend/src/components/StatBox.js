@@ -36,20 +36,26 @@ export default function StatBox({
     width: '100%',
     backgroundColor: 'var(--color-background)',
     borderRadius: 'var(--radius-base)',
-    boxShadow: isHovering ? 'var(--shadow-extruded-hover)' : 'var(--shadow-extruded)',
-    transition: 'all 300ms ease-out',
+    boxShadow: isHovering
+      ? '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(108, 99, 255, 0.1)'
+      : 'var(--shadow-extruded)',
+    transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
     padding: '1.5rem',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '0.5rem',
-    transform: isHovering ? 'translateY(-4px)' : 'translateY(0)'
+    gap: '0.75rem',
+    transform: isHovering ? 'translateY(-5px) scale(1.01)' : 'translateY(0) scale(1)',
+    willChange: 'transform, box-shadow'
   };
 
   const iconStyle = {
     fontSize: '1.875rem',
-    color: variantColorMap[variant]
+    color: variantColorMap[variant],
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   };
 
   const valueStyle = {

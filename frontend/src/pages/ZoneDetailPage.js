@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Info, Building2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { zoneService } from '../services/zoneService';
 import DashboardCard from '../components/DashboardCard';
 import ImageGallery from '../components/ImageGallery';
 import NeuButton from '../components/NeuButton';
 import StatusBadge from '../components/StatusBadge';
+import { translations, formatPriceVND, formatDateVN } from '../utils/vietnamese-translations';
 
 export default function ZoneDetailPage() {
   const { id } = useParams();
@@ -25,7 +27,7 @@ export default function ZoneDetailPage() {
       setZone(data);
     } catch (err) {
       console.error('Failed to load zone:', err);
-      setError('Failed to load zone details. Please try again.');
+      setError(translations.failedLoadZones);
     } finally {
       setLoading(false);
     }
@@ -189,7 +191,7 @@ export default function ZoneDetailPage() {
     return (
       <div style={containerStyle}>
         <div style={maxWidthWrapperStyle}>
-          <div style={loadingStyle}>Loading zone details...</div>
+          <div style={loadingStyle}>{translations.loadingZoneDetails}</div>
         </div>
       </div>
     );
@@ -211,8 +213,11 @@ export default function ZoneDetailPage() {
             onMouseLeave={(e) => {
               e.target.style.boxShadow = 'var(--shadow-inset)';
             }}
+            title="Back to zones"
+            aria-label="Back to zones"
           >
-            ← Back to Zones
+            <ArrowLeft size={18} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+            {translations.backToZones}
           </button>
         </div>
       </div>
@@ -223,9 +228,10 @@ export default function ZoneDetailPage() {
     return (
       <div style={containerStyle}>
         <div style={maxWidthWrapperStyle}>
-          <div style={loadingStyle}>Zone not found</div>
+          <div style={loadingStyle}>{translations.zoneNotFound}</div>
           <button style={backButtonStyle} onClick={() => navigate('/zones')}>
-            ← Back to Zones
+            <ArrowLeft size={18} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+            {translations.backToZones}
           </button>
         </div>
       </div>
@@ -246,7 +252,7 @@ export default function ZoneDetailPage() {
             e.target.style.boxShadow = 'var(--shadow-inset)';
           }}
         >
-          ← Back to Zones
+          ← {translations.backToZones}
         </button>
 
         {/* Main Content Grid */}
@@ -274,26 +280,26 @@ export default function ZoneDetailPage() {
             </div>
 
             {/* Specs Card */}
-            <DashboardCard title="Key Specifications" icon="📊">
+            <DashboardCard title={translations.keySpecifications} icon={<Building2 />}>
               <div style={specsGridStyle}>
                 <div style={specCardStyle}>
-                  <div style={specLabelStyle}>Total Area</div>
+                  <div style={specLabelStyle}>{translations.totalArea}</div>
                   <div style={specValueStyle}>{formatArea(zone.total_area)} m²</div>
                 </div>
                 <div style={specCardStyle}>
-                  <div style={specLabelStyle}>Available</div>
+                  <div style={specLabelStyle}>{translations.available}</div>
                   <div style={specValueStyle}>{formatArea(zone.available_area)} m²</div>
                 </div>
                 <div style={specCardStyle}>
-                  <div style={specLabelStyle}>Price/m²/mo</div>
-                  <div style={specValueStyle}>{formatPrice(zone.price_per_sqm)}</div>
+                  <div style={specLabelStyle}>{translations.pricePerSqm}</div>
+                  <div style={specValueStyle}>{formatPriceVND(zone.price_per_sqm)}</div>
                 </div>
               </div>
             </DashboardCard>
 
             {/* Description & Amenities Card */}
             {(zone.description || zone.amenities) && (
-              <DashboardCard title="About this Zone" icon="ℹ️">
+              <DashboardCard title={translations.aboutZone} icon={<Info size={24} strokeWidth={2} />}>
                 {zone.description && (
                   <div style={{ marginBottom: zone.amenities ? '1.5rem' : 0 }}>
                     <p style={descriptionTextStyle}>{zone.description}</p>
@@ -302,7 +308,7 @@ export default function ZoneDetailPage() {
                 {zone.amenities && (
                   <div>
                     <div style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
-                      Amenities
+                      {translations.amenities}
                     </div>
                     <p style={amenitiesTextStyle}>{zone.amenities}</p>
                   </div>
@@ -319,7 +325,7 @@ export default function ZoneDetailPage() {
                   size="medium"
                   onClick={() => navigate(`/zones/${id}/edit`)}
                 >
-                  ✏️ Edit Zone
+                  ✏️ {translations.editZone}
                 </NeuButton>
               )}
 
@@ -352,7 +358,7 @@ export default function ZoneDetailPage() {
                     e.target.style.transform = 'translateY(0)';
                   }}
                 >
-                  🏢 Create Rental Request
+                  🏢 {translations.createRentalRequestBtn}
                 </button>
               )}
             </div>
@@ -365,15 +371,6 @@ export default function ZoneDetailPage() {
 
 // ===== HELPER FUNCTIONS =====
 
-function formatPrice(price) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(price || 0);
-}
-
 function formatArea(area) {
-  return new Intl.NumberFormat('en-US').format(Math.round(area || 0));
+  return new Intl.NumberFormat('vi-VN').format(Math.round(area || 0));
 }

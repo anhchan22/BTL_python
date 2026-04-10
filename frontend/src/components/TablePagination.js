@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
  * TablePagination - Neumorphic pagination control for tables
@@ -19,7 +20,7 @@ export default function TablePagination({ currentPage, totalPages, onPageChange 
   };
 
   const buttonStyle = (isActive, isDisabled) => ({
-    padding: '0.5rem 0.75rem',
+    padding: '0.65rem 0.875rem',
     borderRadius: 'var(--radius-base)',
     border: 'none',
     backgroundColor: isActive ? 'var(--color-accent)' : 'var(--color-background)',
@@ -28,8 +29,11 @@ export default function TablePagination({ currentPage, totalPages, onPageChange 
     fontSize: '0.875rem',
     cursor: isDisabled ? 'not-allowed' : 'pointer',
     opacity: isDisabled ? 0.5 : 1,
-    boxShadow: isActive ? 'var(--shadow-extruded)' : 'var(--shadow-inset)',
-    transition: 'all 300ms ease-out'
+    boxShadow: isActive
+      ? '0 20px 25px -5px rgba(108, 99, 255, 0.2), 0 10px 10px -5px rgba(108, 99, 255, 0.1)'
+      : 'var(--shadow-inset)',
+    transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
+    willChange: 'transform, box-shadow, background-color'
   });
 
   const infoStyle = {
@@ -86,16 +90,21 @@ export default function TablePagination({ currentPage, totalPages, onPageChange 
         disabled={currentPage === 1}
         onMouseEnter={(e) => {
           if (currentPage > 1) {
-            e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
-            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 20px 25px -5px rgba(108, 99, 255, 0.2), 0 10px 10px -5px rgba(108, 99, 255, 0.1)';
+            e.target.style.transform = 'translateY(-3px) scale(1.02)';
+            e.target.style.backgroundColor = 'rgba(108, 99, 255, 0.1)';
           }
         }}
         onMouseLeave={(e) => {
           e.target.style.boxShadow = 'var(--shadow-inset)';
-          e.target.style.transform = 'translateY(0)';
+          e.target.style.transform = 'translateY(0) scale(1)';
+          e.target.style.backgroundColor = 'var(--color-background)';
         }}
+        title="Previous page"
+        aria-label="Previous page"
       >
-        ← Prev
+        <ChevronLeft size={18} strokeWidth={2} style={{ marginRight: '0.3rem', display: 'inline' }} />
+        Prev
       </button>
 
       {/* Page Numbers */}
@@ -114,14 +123,16 @@ export default function TablePagination({ currentPage, totalPages, onPageChange 
             onClick={() => onPageChange(page)}
             onMouseEnter={(e) => {
               if (page !== currentPage) {
-                e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
-                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 20px 25px -5px rgba(108, 99, 255, 0.2), 0 10px 10px -5px rgba(108, 99, 255, 0.1)';
+                e.target.style.transform = 'translateY(-3px) scale(1.02)';
+                e.target.style.backgroundColor = 'rgba(108, 99, 255, 0.1)';
               }
             }}
             onMouseLeave={(e) => {
               if (page !== currentPage) {
                 e.target.style.boxShadow = 'var(--shadow-inset)';
-                e.target.style.transform = 'translateY(0)';
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.backgroundColor = 'var(--color-background)';
               }
             }}
           >
@@ -137,16 +148,21 @@ export default function TablePagination({ currentPage, totalPages, onPageChange 
         disabled={currentPage === totalPages}
         onMouseEnter={(e) => {
           if (currentPage < totalPages) {
-            e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
-            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 20px 25px -5px rgba(108, 99, 255, 0.2), 0 10px 10px -5px rgba(108, 99, 255, 0.1)';
+            e.target.style.transform = 'translateY(-3px) scale(1.02)';
+            e.target.style.backgroundColor = 'rgba(108, 99, 255, 0.1)';
           }
         }}
         onMouseLeave={(e) => {
           e.target.style.boxShadow = 'var(--shadow-inset)';
-          e.target.style.transform = 'translateY(0)';
+          e.target.style.transform = 'translateY(0) scale(1)';
+          e.target.style.backgroundColor = 'var(--color-background)';
         }}
+        title="Next page"
+        aria-label="Next page"
       >
-        Next →
+        Next
+        <ChevronRight size={18} strokeWidth={2} style={{ marginLeft: '0.3rem', display: 'inline' }} />
       </button>
 
       {/* Page Info */}

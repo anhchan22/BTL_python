@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, HourglassIcon, Check } from 'lucide-react';
 import { zoneService } from '../services/zoneService';
 import * as imageService from '../services/imageService';
 import DashboardCard from '../components/DashboardCard';
+import { translations } from '../utils/vietnamese-translations';
 
 export default function ZoneFormPage() {
   const { id } = useParams();
@@ -497,33 +499,36 @@ export default function ZoneFormPage() {
           onMouseLeave={(e) => {
             e.target.style.boxShadow = 'var(--shadow-inset)';
           }}
+          title="Back to zones"
+          aria-label="Back to zones"
         >
-          ← Back to Zones
+          <ArrowLeft size={18} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+          {translations.backToZones}
         </button>
 
         {/* Header */}
         <h1 style={titleStyle}>
-          {isEdit ? '✏️ Edit Industrial Zone' : '➕ Add New Industrial Zone'}
+          {isEdit ? '✏️ ' + translations.editZoneTitle : '➕ ' + translations.addNewZone}
         </h1>
 
         {/* Error Alert */}
         {submitError && <div style={errorBoxStyle}>{submitError}</div>}
 
         {/* Form Card */}
-        <DashboardCard title={isEdit ? 'Zone Details' : 'Zone Information'} icon="🏭">
+        <DashboardCard title={isEdit ? translations.zoneDetails : translations.zoneInformation} icon="🏭">
           <form style={formStyle} onSubmit={handleSubmit}>
             {/* Basic Info Row */}
             <div style={gridRowStyle}>
               <div style={fieldWrapperStyle}>
                 <label style={labelStyle}>
-                  Zone Name <span style={requiredStyle}>*</span>
+                  {translations.zoneName} <span style={requiredStyle}>*</span>
                 </label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="e.g., Industrial Zone A"
+                  placeholder={translations.zoneNameExample}
                   style={{ ...inputStyle, borderColor: errors.name ? '#EF4444' : 'var(--color-muted)' }}
                   required
                 />
@@ -532,14 +537,14 @@ export default function ZoneFormPage() {
 
               <div style={fieldWrapperStyle}>
                 <label style={labelStyle}>
-                  Location <span style={requiredStyle}>*</span>
+                  {translations.location} <span style={requiredStyle}>*</span>
                 </label>
                 <input
                   type="text"
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                  placeholder="e.g., District 1, Ho Chi Minh City"
+                  placeholder={translations.locationExample}
                   style={{ ...inputStyle, borderColor: errors.location ? '#EF4444' : 'var(--color-muted)' }}
                   required
                 />
@@ -551,14 +556,14 @@ export default function ZoneFormPage() {
             <div style={gridRowStyle}>
               <div style={fieldWrapperStyle}>
                 <label style={labelStyle}>
-                  Total Area (m²) <span style={requiredStyle}>*</span>
+                  {translations.totalAreaSqm} <span style={requiredStyle}>*</span>
                 </label>
                 <input
                   type="number"
                   name="total_area"
                   value={formData.total_area}
                   onChange={handleChange}
-                  placeholder="5000"
+                  placeholder={translations.areaExample}
                   style={{ ...inputStyle, borderColor: errors.total_area ? '#EF4444' : 'var(--color-muted)' }}
                   required
                 />
@@ -567,14 +572,14 @@ export default function ZoneFormPage() {
 
               <div style={fieldWrapperStyle}>
                 <label style={labelStyle}>
-                  Available Area (m²) <span style={requiredStyle}>*</span>
+                  {translations.availableAreaSqm} <span style={requiredStyle}>*</span>
                 </label>
                 <input
                   type="number"
                   name="available_area"
                   value={formData.available_area}
                   onChange={handleChange}
-                  placeholder="3000"
+                  placeholder={translations.areaExample}
                   style={{ ...inputStyle, borderColor: errors.available_area ? '#EF4444' : 'var(--color-muted)' }}
                   required
                 />
@@ -583,14 +588,14 @@ export default function ZoneFormPage() {
 
               <div style={fieldWrapperStyle}>
                 <label style={labelStyle}>
-                  Price per m²/month (USD) <span style={requiredStyle}>*</span>
+                  {translations.pricePerSqmMonth} <span style={requiredStyle}>*</span>
                 </label>
                 <input
                   type="number"
                   name="price_per_sqm"
                   value={formData.price_per_sqm}
                   onChange={handleChange}
-                  placeholder="25"
+                  placeholder={translations.priceExample}
                   style={{ ...inputStyle, borderColor: errors.price_per_sqm ? '#EF4444' : 'var(--color-muted)' }}
                   required
                 />
@@ -601,13 +606,13 @@ export default function ZoneFormPage() {
             {/* Description */}
             <div style={fieldWrapperStyle}>
               <label style={labelStyle}>
-                Description <span style={requiredStyle}>*</span>
+                {translations.description} <span style={requiredStyle}>*</span>
               </label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe the zone, its features, and advantages..."
+                placeholder={translations.describeZone}
                 style={{
                   ...inputStyle,
                   minHeight: '120px',
@@ -621,12 +626,12 @@ export default function ZoneFormPage() {
 
             {/* Amenities */}
             <div style={fieldWrapperStyle}>
-              <label style={labelStyle}>Amenities</label>
+              <label style={labelStyle}>{translations.amenitiesList}</label>
               <textarea
                 name="amenities"
                 value={formData.amenities}
                 onChange={handleChange}
-                placeholder="List amenities separated by lines (e.g., Security 24/7, Parking, Loading dock...)"
+                placeholder={translations.amenitiesHint}
                 style={{
                   ...inputStyle,
                   minHeight: '90px',
@@ -640,7 +645,7 @@ export default function ZoneFormPage() {
             {/* IMAGE UPLOAD SECTION */}
             <div style={fieldWrapperStyle}>
               <label style={labelStyle}>
-                Zone Images <span style={requiredStyle}>*</span> (1-6 images)
+                {translations.zoneImages} <span style={requiredStyle}>*</span> (1-6 {translations.images || 'images'})
               </label>
 
               <div
@@ -692,7 +697,7 @@ export default function ZoneFormPage() {
                     e.target.style.transform = 'translateY(0)';
                   }}
                 >
-                  Browse Files
+                  {translations.search}
                 </button>
               </div>
 
@@ -791,7 +796,7 @@ export default function ZoneFormPage() {
                 onChange={handleChange}
                 style={checkboxStyle}
               />
-              <span style={{ color: 'var(--color-foreground)', fontWeight: '500' }}>Available for Rent</span>
+              <span style={{ color: 'var(--color-foreground)', fontWeight: '500' }}>{translations.availableForRent}</span>
             </label>
 
             {/* Action Buttons */}
@@ -813,7 +818,17 @@ export default function ZoneFormPage() {
                   e.target.style.transform = 'translateY(0)';
                 }}
               >
-                {loading ? '⏳ Saving...' : (isEdit ? '✓ Update Zone' : '✓ Create Zone')}
+                {loading ? (
+                  <>
+                    <HourglassIcon size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Check size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+                    {isEdit ? 'Update Zone' : 'Create Zone'}
+                  </>
+                )}
               </button>
 
               {isEdit && (
@@ -831,7 +846,7 @@ export default function ZoneFormPage() {
                     e.target.style.backgroundColor = '#FEE2E2';
                   }}
                 >
-                  🗑️ Delete Zone
+                  🗑️ {translations.deleteZone}
                 </button>
               )}
             </div>

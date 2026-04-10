@@ -1,14 +1,15 @@
 import React from 'react';
+import { Phone, Mail } from 'lucide-react';
 import '../styles/footer.css';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   // Replace with actual company info
-  const companyName = 'Industrial Zone Rental Platform';
-  const phoneNumber = '+84 (0) 123 456 789';
+  const companyName = 'Hệ thống cho thuê Khu công nghiệp';
+  const phoneNumber = '+84 (0) 834 471 918';
   const phoneHref = 'tel:+84-123-456-789';
-  const email = 'contact@example.com';
+  const email = 'trananh22052005@gmail.com';
   const emailHref = `mailto:${email}`;
 
   return (
@@ -16,8 +17,8 @@ export default function Footer() {
       <div className="footer-content">
         <h3 className="footer-title">{companyName}</h3>
         <p className="footer-description">
-          Premium industrial zone rental management platform
-          with smart approvals and real-time notifications.
+          Nền tảng quản lý cho thuê khu công nghiệp cao cấp,
+          tích hợp phê duyệt thông minh và thông báo theo thời gian thực.
         </p>
       </div>
 
@@ -25,11 +26,11 @@ export default function Footer() {
 
       <div className="footer-contact">
         <a href={phoneHref} className="footer-contact-link" title="Call us">
-          <span>📞</span>
+          <Phone size={18} strokeWidth={2} />
           <span>{phoneNumber}</span>
         </a>
         <a href={emailHref} className="footer-contact-link" title="Email us">
-          <span>✉️</span>
+          <Mail size={18} strokeWidth={2} />
           <span>{email}</span>
         </a>
       </div>

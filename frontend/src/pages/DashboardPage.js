@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { FileCheckCorner, User, UserRoundCheck, Mail, ArrowRight, Zap, Factory, Clipboard, FileText, Users, BarChart3, Settings } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { contractService } from '../services/contractService';
@@ -268,15 +269,16 @@ export default function DashboardPage() {
               value={user?.profile?.role || 'N/A'}
               label={translations.role}
               variant="info"
-              icon="👤"
+              icon={<UserRoundCheck size={24} strokeWidth={2}/>}
             />
+            
 
             {/* Active Contracts Stat */}
             <StatBox
               value={activeContracts.length}
               label={translations.activeContracts}
               variant="success"
-              icon="📄"
+              icon={<FileCheckCorner size={24} strokeWidth={2} />}
             />
 
             {/* Company Stat (if available) */}
@@ -294,7 +296,7 @@ export default function DashboardPage() {
               value={user?.email?.substring(0, 10) + '...'}
               label={translations.contact}
               variant="default"
-              icon="✉️"
+              icon={<Mail size={24} strokeWidth={2} />}
             />
           </div>
         </div>
@@ -313,26 +315,26 @@ export default function DashboardPage() {
         )}
 
         {/* ===== QUICK ACTIONS SECTION ===== */}
-        <DashboardCard title={translations.quickActions} icon="⚡">
+        <DashboardCard title={translations.quickActions} icon={<Zap size={24} strokeWidth={2} />}>
           <div style={quickActionsGridStyle}>
             {/* View Industrial Zones Button */}
             <NeuNavButton
               label={translations.industrialZones}
-              icon="🏭"
+              icon={<Factory size={24} strokeWidth={2} />}
               onClick={() => navigate('/zones')}
             />
 
             {/* Rental Requests Button */}
             <NeuNavButton
               label={isAdmin() ? translations.manageRequests : translations.myRequests}
-              icon="📋"
+              icon={<Clipboard size={24} strokeWidth={2} />}
               onClick={() => navigate('/rental-requests')}
             />
 
             {/* View Contracts Button */}
             <NeuNavButton
               label={translations.viewContracts}
-              icon="📄"
+              icon={<FileText size={24} strokeWidth={2} />}
               onClick={() => navigate('/contracts')}
             />
 
@@ -340,7 +342,7 @@ export default function DashboardPage() {
             {isAdmin() && (
               <NeuNavButton
                 label={translations.userManagement}
-                icon="👥"
+                icon={<Users size={24} strokeWidth={2} />}
                 onClick={() => navigate('/admin/users')}
               />
             )}
@@ -349,7 +351,7 @@ export default function DashboardPage() {
             {isAdmin() && (
               <NeuNavButton
                 label={translations.reports}
-                icon="📊"
+                icon={<BarChart3 size={24} strokeWidth={2} />}
                 onClick={() => {
                   alert(translations.reportsComingSoon);
                 }}
@@ -360,7 +362,7 @@ export default function DashboardPage() {
             {isAdmin() && (
               <NeuNavButton
                 label={translations.settings}
-                icon="⚙️"
+                icon={<Settings size={24} strokeWidth={2} />}
                 onClick={() => {
                   alert(translations.settingsComingSoon);
                 }}
@@ -374,7 +376,7 @@ export default function DashboardPage() {
           <div style={{ marginBottom: '2rem' }}>
             <DashboardCard
               title={translations.activeContracts}
-              icon="📋"
+              icon={<Clipboard size={24} strokeWidth={2} />}
               action={
                 <button
                   onClick={() => navigate('/contracts')}
@@ -382,7 +384,7 @@ export default function DashboardPage() {
                   onMouseEnter={(e) => (e.target.style.color = 'var(--color-accent-light)')}
                   onMouseLeave={(e) => (e.target.style.color = 'var(--color-accent)')}
                 >
-                  Xem tất cả →
+                  Xem tất cả <ArrowRight size={16} strokeWidth={2} style={{ marginLeft: '0.4rem', display: 'inline' }} />
                 </button>
               }
             >
@@ -460,7 +462,7 @@ export default function DashboardPage() {
 
         {/* ===== USER DETAILS SECTION ===== */}
         <div style={{ marginBottom: '2rem' }}>
-          <DashboardCard title={translations.profileInformation} icon="👤">
+          <DashboardCard title={translations.profileInformation} icon={<User size={24} strokeWidth={2} />}>
             <div style={profileGridStyle}>
               {/* Email */}
               <div style={profileFieldStyle}>

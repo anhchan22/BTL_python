@@ -28,11 +28,12 @@ export default function ImageGallery({ images, zoneId, zoneName }) {
   const galleryContainerStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem',
-    borderRadius: 'var(--radius-base)',
+    gap: '1.5rem',
+    borderRadius: 'var(--radius-container)',
     overflow: 'hidden',
     boxShadow: 'var(--shadow-extruded)',
-    backgroundColor: 'var(--color-background)'
+    backgroundColor: 'var(--color-background)',
+    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
   const mainImageContainerStyle = {
@@ -69,11 +70,12 @@ export default function ImageGallery({ images, zoneId, zoneName }) {
     fontWeight: '700',
     cursor: 'pointer',
     boxShadow: 'var(--shadow-extruded)',
-    transition: 'all 300ms ease-out',
+    transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10
+    zIndex: 10,
+    willChange: 'transform, box-shadow'
   });
 
   const thumbnailContainerStyle = {
@@ -92,10 +94,13 @@ export default function ImageGallery({ images, zoneId, zoneName }) {
     border: 'none',
     padding: 0,
     overflow: 'hidden',
-    boxShadow: isActive ? 'var(--shadow-inset-deep)' : 'var(--shadow-extruded-small)',
+    boxShadow: isActive
+      ? 'inset 4px 4px 8px rgba(0, 0, 0, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.2), 0 0 0 2px rgba(108, 99, 255, 0.2)'
+      : 'var(--shadow-extruded-small)',
     opacity: isActive ? 1 : 0.65,
-    transition: 'all 300ms ease-out',
-    backgroundColor: 'var(--color-background)'
+    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: 'var(--color-background)',
+    willChange: 'opacity, box-shadow'
   });
 
   const thumbnailImageStyle = {
@@ -157,12 +162,14 @@ export default function ImageGallery({ images, zoneId, zoneName }) {
               style={navButtonStyle('left')}
               onClick={goToPrevious}
               onMouseEnter={(e) => {
-                e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
-                e.target.style.transform = 'translateY(-50%) translateX(-4px)';
+                e.target.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1)';
+                e.target.style.transform = 'translateY(-50%) translateX(-4px) scale(1.08)';
+                e.target.style.backgroundColor = 'rgba(108, 99, 255, 0.1)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.boxShadow = 'var(--shadow-extruded)';
-                e.target.style.transform = 'translateY(-50%) translateX(0)';
+                e.target.style.transform = 'translateY(-50%) translateX(0) scale(1)';
+                e.target.style.backgroundColor = 'var(--color-background)';
               }}
               title="Previous image"
               aria-label="Previous image"
@@ -174,12 +181,14 @@ export default function ImageGallery({ images, zoneId, zoneName }) {
               style={navButtonStyle('right')}
               onClick={goToNext}
               onMouseEnter={(e) => {
-                e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
-                e.target.style.transform = 'translateY(-50%) translateX(4px)';
+                e.target.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1)';
+                e.target.style.transform = 'translateY(-50%) translateX(4px) scale(1.08)';
+                e.target.style.backgroundColor = 'rgba(108, 99, 255, 0.1)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.boxShadow = 'var(--shadow-extruded)';
-                e.target.style.transform = 'translateY(-50%) translateX(0)';
+                e.target.style.transform = 'translateY(-50%) translateX(0) scale(1)';
+                e.target.style.backgroundColor = 'var(--color-background)';
               }}
               title="Next image"
               aria-label="Next image"

@@ -61,7 +61,10 @@ export default function NeuNavButton({
   };
 
   const iconStyle = {
-    fontSize: '1.875rem'
+    fontSize: '1.875rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   };
 
   const labelStyle = {

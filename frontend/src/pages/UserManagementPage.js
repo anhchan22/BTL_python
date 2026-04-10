@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { HourglassIcon, AlertTriangle, Check, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import * as userService from '../services/userService';
 import StatusBadge from '../components/StatusBadge';
+import { translations } from '../utils/vietnamese-translations';
 
 export default function UserManagementPage() {
   const { user } = useAuth();
@@ -48,7 +50,7 @@ export default function UserManagementPage() {
     if (selectedUser.profile.role === 'ADMIN' && newRole === 'TENANT') {
       const adminCount = users.filter(u => u.profile.role === 'ADMIN').length;
       if (adminCount <= 1) {
-        showSnackbar('Cannot demote last admin', 'error');
+        showSnackbar(translations.cannotDemoteLastAdminSnackbar, 'error');
         setDialogOpen(false);
         return;
       }
@@ -290,7 +292,7 @@ export default function UserManagementPage() {
     return (
       <div style={containerStyle}>
         <div style={maxWidthWrapperStyle}>
-          <div style={loadingStyle}>⏳ Loading users...</div>
+          <div style={loadingStyle}><HourglassIcon size={20} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />{translations.loadingUsers}</div>
         </div>
       </div>
     );
@@ -301,25 +303,25 @@ export default function UserManagementPage() {
       <div style={maxWidthWrapperStyle}>
         {/* Header */}
         <div style={headerStyle}>
-          <h1 style={titleStyle}>👥 User Management</h1>
-          <p style={subtitleStyle}>Manage user roles and permissions</p>
+          <h1 style={titleStyle}>👥 {translations.userManagementTitle}</h1>
+          <p style={subtitleStyle}>{translations.manageUserRoles}</p>
         </div>
 
         {/* Empty State */}
         {users.length === 0 ? (
           <div style={emptyStateStyle}>
-            <p>No users found</p>
+            <p>{translations.noUsersFound}</p>
           </div>
         ) : (
           <div style={tableWrapperStyle}>
             <table style={tableStyle}>
               <thead>
                 <tr style={rowHoverStyle}>
-                  <th style={headerCellStyle}>Username</th>
-                  <th style={headerCellStyle}>Email</th>
-                  <th style={headerCellStyle}>Full Name</th>
-                  <th style={headerCellStyle}>Role</th>
-                  <th style={headerCellStyle}>Actions</th>
+                  <th style={headerCellStyle}>{translations.username}</th>
+                  <th style={headerCellStyle}>{translations.email}</th>
+                  <th style={headerCellStyle}>{translations.fullName}</th>
+                  <th style={headerCellStyle}>{translations.role}</th>
+                  <th style={headerCellStyle}>{translations.actions}</th>
                 </tr>
               </thead>
               <tbody>
@@ -361,7 +363,7 @@ export default function UserManagementPage() {
                         }}
                         title={u.id === user.id ? 'Cannot change own role' : 'Change role'}
                       >
-                        ✏️ Edit
+                        ✏️ {translations.edit}
                       </button>
                     </td>
                   </tr>
@@ -375,22 +377,22 @@ export default function UserManagementPage() {
       {/* Role Change Dialog */}
       <div style={dialogOverlayStyle} onClick={() => setDialogOpen(false)}>
         <div style={dialogStyle} onClick={(e) => e.stopPropagation()}>
-          <div style={dialogTitleStyle}>Change User Role</div>
+          <div style={dialogTitleStyle}>{translations.changeUserRole}</div>
 
           {selectedUser && (
             <>
               <div style={userInfoStyle}>
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>Username:</strong> {selectedUser.username}
+                  <strong>{translations.username}:</strong> {selectedUser.username}
                 </div>
                 <div>
-                  <strong>Current Role:</strong> {selectedUser.profile.role}
+                  <strong>{translations.currentRole}</strong> {selectedUser.profile.role}
                 </div>
               </div>
 
               <div style={{ marginBottom: '1rem' }}>
                 <div style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-muted)', marginBottom: '0.75rem' }}>
-                  SELECT NEW ROLE
+                  {translations.selectNewRole}
                 </div>
                 <div style={roleButtonsStyle}>
                   {['TENANT', 'ADMIN'].map((role) => (
@@ -417,7 +419,8 @@ export default function UserManagementPage() {
 
               {!canDemote(selectedUser) && selectedUser?.profile?.role === 'ADMIN' && newRole === 'TENANT' && (
                 <div style={warningBoxStyle}>
-                  ⚠️ Cannot demote the last administrator. At least one admin must exist.
+                  <AlertTriangle size={18} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+                  {translations.cannotDemoteLastAdmin}
                 </div>
               )}
 
@@ -432,7 +435,7 @@ export default function UserManagementPage() {
                     e.target.style.boxShadow = 'var(--shadow-inset)';
                   }}
                 >
-                  Cancel
+                  {translations.cancel}
                 </button>
                 <button
                   style={{
@@ -455,7 +458,7 @@ export default function UserManagementPage() {
                     }
                   }}
                 >
-                  Save Role
+                  {translations.saveRole}
                 </button>
               </div>
             </>
@@ -466,7 +469,8 @@ export default function UserManagementPage() {
       {/* Snackbar Notification */}
       {snackbar.open && (
         <div style={snackbar.severity === 'success' ? snackbarSuccessStyle : snackbarErrorStyle}>
-          {snackbar.severity === 'success' ? '✓' : '✕'} {snackbar.message}
+          {snackbar.severity === 'success' ? <Check size={18} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} /> : <AlertCircle size={18} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />}
+          {snackbar.message}
         </div>
       )}
     </div>

@@ -5,6 +5,7 @@ import AuthCard from '../components/AuthCard';
 import FormField from '../components/FormField';
 import NeuButton from '../components/NeuButton';
 import { translations } from '../utils/vietnamese-translations';
+import { space } from 'postcss/lib/list';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -96,7 +97,8 @@ export default function RegisterPage() {
   const fieldsetStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem'
+    gap: '1rem', 
+    padding: 15
   };
 
   const legendStyle = {
@@ -104,7 +106,7 @@ export default function RegisterPage() {
     fontWeight: '600',
     color: 'var(--color-muted)',
     textTransform: 'uppercase',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.1em',
     marginBottom: '0.75rem',
     display: 'block'
   };
@@ -134,7 +136,7 @@ export default function RegisterPage() {
         <div style={infoBoxStyle}>
           <p style={infoBoxTextStyle}>
             Các tài khoản mới được tạo dưới dạng <strong>Người thuê</strong>.
-            Liên hệ với quản trị viên để trở thành Quản trị viên.
+            Liên hệ với quản trị viên để được hỗ trợ đăng bài.
           </p>
         </div>
 

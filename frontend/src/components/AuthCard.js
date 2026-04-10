@@ -44,8 +44,12 @@ export default function AuthCard({ children, size = 'md', style = {} }) {
     <div
       style={{
         ...cardStyle,
-        boxShadow: isHovering ? 'var(--shadow-extruded-hover)' : 'var(--shadow-extruded)',
-        transform: isHovering ? 'translateY(-2px)' : 'translateY(0)'
+        boxShadow: isHovering
+          ? '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(108, 99, 255, 0.1)'
+          : 'var(--shadow-extruded)',
+        transform: isHovering ? 'translateY(-5px) scale(1.01)' : 'translateY(0) scale(1)',
+        transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
+        willChange: 'transform, box-shadow'
       }}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}

@@ -33,14 +33,17 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
   const cardStyle = {
     width: '100%',
     backgroundColor: 'var(--color-background)',
-    borderRadius: 'var(--radius-base)',
-    boxShadow: isHovering ? 'var(--shadow-extruded-hover)' : 'var(--shadow-extruded)',
-    transition: 'all 300ms ease-out',
+    borderRadius: 'var(--radius-container)',
+    boxShadow: isHovering
+      ? '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(108, 99, 255, 0.1)'
+      : 'var(--shadow-extruded)',
+    transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
     overflow: 'hidden',
     cursor: 'pointer',
-    transform: isHovering ? 'translateY(-4px)' : 'translateY(0)',
+    transform: isHovering ? 'translateY(-5px) scale(1.02)' : 'translateY(0) scale(1)',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    willChange: 'transform, box-shadow'
   };
 
   const imageContainerStyle = {
@@ -48,15 +51,17 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
     height: '200px',
     overflow: 'hidden',
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    borderRadius: 'var(--radius-base) var(--radius-base) 0 0'
+    borderRadius: 'var(--radius-container) var(--radius-container) 0 0',
+    position: 'relative'
   };
 
   const imageStyle = {
     width: '100%',
     height: '100%',
     objectFit: 'cover',
-    transition: 'transform 0.3s ease',
-    transform: isHovering ? 'scale(1.05)' : 'scale(1)'
+    transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1), filter 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+    transform: isHovering ? 'scale(1.08)' : 'scale(1)',
+    filter: isHovering ? 'brightness(0.92)' : 'brightness(1)'
   };
 
   const contentStyle = {
@@ -71,7 +76,8 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
     fontWeight: '700',
     fontFamily: '"Plus Jakarta Sans", sans-serif',
     color: 'var(--color-foreground)',
-    marginBottom: '0.5rem'
+    marginBottom: '0.5rem',
+    lineHeight: '1.3'
   };
 
   const locationStyle = {
@@ -85,7 +91,7 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
 
   const specsStyle = {
     fontSize: '0.875rem',
-    marginBottom: '0.5rem',
+    marginBottom: '0.75rem',
     color: 'var(--color-fg)',
     display: 'flex',
     justifyContent: 'space-between'
@@ -107,8 +113,10 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
   };
 
   const statusBadgeStyle = {
-    display: 'inline-block',
-    padding: '0.25rem 0.75rem',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.4rem',
+    padding: '0.4rem 0.875rem',
     borderRadius: '9999px',
     fontSize: '0.75rem',
     fontWeight: '700',
@@ -117,30 +125,33 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
       : 'rgba(239, 68, 68, 0.2)',
     color: zone.is_available && zone.available_area > 0
       ? 'var(--color-accent-secondary)'
-      : '#DC2626'
+      : '#DC2626',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
   const actionsStyle = {
     display: 'flex',
-    gap: '0.5rem',
+    gap: '0.75rem',
     marginTop: 'auto',
-    paddingTop: '1rem',
-    borderTop: '1px solid var(--color-muted)',
-    borderTopOpacity: '0.2'
+    paddingTop: '1.25rem',
+    borderTop: '1px solid rgba(0, 0, 0, 0.05)'
   };
 
   const buttonStyle = {
     flex: 1,
-    padding: '0.5rem 1rem',
-    borderRadius: 'var(--radius-inner)',
+    padding: '0.65rem 1rem',
+    borderRadius: 'var(--radius-base)',
     border: 'none',
     backgroundColor: 'var(--color-accent)',
     color: 'white',
     fontWeight: '600',
     fontSize: '0.875rem',
     cursor: 'pointer',
-    transition: 'all 300ms ease-out',
-    boxShadow: 'var(--shadow-extruded-small)'
+    transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
+    boxShadow: 'var(--shadow-extruded-small)',
+    willChange: 'transform, box-shadow, background-color'
   };
 
   const editButtonStyle = {
@@ -227,11 +238,13 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
             onClick={onViewDetails}
             onMouseEnter={(e) => {
               e.target.style.backgroundColor = 'var(--color-accent-light)';
-              e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
+              e.target.style.boxShadow = '0 20px 25px -5px rgba(108, 99, 255, 0.3), 0 10px 10px -5px rgba(108, 99, 255, 0.2)';
+              e.target.style.transform = 'translateY(-3px) scale(1.02)';
             }}
             onMouseLeave={(e) => {
               e.target.style.backgroundColor = 'var(--color-accent)';
               e.target.style.boxShadow = 'var(--shadow-extruded-small)';
+              e.target.style.transform = 'translateY(0) scale(1)';
             }}
           >
             {translations.viewDetails}
@@ -242,11 +255,13 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
               onClick={onEdit}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = '#9CA3AF';
-                e.target.style.boxShadow = 'var(--shadow-extruded-hover)';
+                e.target.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.05)';
+                e.target.style.transform = 'translateY(-3px) scale(1.02)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.backgroundColor = 'var(--color-muted)';
                 e.target.style.boxShadow = 'var(--shadow-extruded-small)';
+                e.target.style.transform = 'translateY(0) scale(1)';
               }}
             >
               {translations.edit}

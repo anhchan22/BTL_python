@@ -56,14 +56,14 @@ export default function NeuButton({
       hover: {
         backgroundColor: 'var(--color-accent-light)',
         color: 'white',
-        boxShadow: 'var(--shadow-extruded-hover)',
-        transform: 'translateY(-1px)'
+        boxShadow: '0 20px 25px -5px rgba(108, 99, 255, 0.3), 0 10px 10px -5px rgba(108, 99, 255, 0.2), 0 0 0 2px rgba(108, 99, 255, 0.2)',
+        transform: 'translateY(-3px) scale(1.02)'
       },
       active: {
         backgroundColor: 'var(--color-accent)',
         color: 'white',
         boxShadow: 'inset 4px 4px 8px rgba(0, 0, 0, 0.2), inset -2px -2px 4px rgba(255, 255, 255, 0.3)',
-        transform: 'translateY(0.5px)'
+        transform: 'translateY(0.5px) scale(0.98)'
       }
     },
     secondary: {
@@ -75,14 +75,14 @@ export default function NeuButton({
       hover: {
         backgroundColor: '#D5DDE5',
         color: 'var(--color-foreground)',
-        boxShadow: 'var(--shadow-extruded-hover)',
-        transform: 'translateY(-1px)'
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+        transform: 'translateY(-3px) scale(1.02)'
       },
       active: {
         backgroundColor: 'var(--color-background)',
         color: 'var(--color-foreground)',
         boxShadow: 'var(--shadow-inset-small)',
-        transform: 'translateY(0.5px)'
+        transform: 'translateY(0.5px) scale(0.98)'
       }
     }
   };
@@ -98,9 +98,10 @@ export default function NeuButton({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '44px',
-    transition: 'all 300ms ease-out',
+    transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
     opacity: disabled ? 0.5 : 1,
-    width: fullWidth ? '100%' : 'auto'
+    width: fullWidth ? '100%' : 'auto',
+    willChange: 'transform, box-shadow, background-color'
   };
 
   const handleMouseDown = () => {

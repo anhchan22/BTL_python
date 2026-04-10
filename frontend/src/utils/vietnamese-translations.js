@@ -75,6 +75,7 @@ export const translations = {
   createRentalRequestBtn: 'Tạo yêu cầu thuê',
   loadingZoneDetails: 'Đang tải chi tiết khu vực...',
   zoneNotFound: 'Không tìm thấy khu vực',
+  created: 'Tạo',
 
   // Zone Card
   totalAreaLabel: 'Tổng diện tích:',
@@ -105,6 +106,7 @@ export const translations = {
   updateZone: 'Cập nhật Khu vực',
   deleteZone: 'Xóa Khu vực',
   failedSaveZone: 'Lưu khu vực thất bại',
+  images: 'Hình ảnh',
 
   // Rental Request Pages
   allRentalRequests: 'Tất cả Yêu cầu thuê',
@@ -156,6 +158,8 @@ export const translations = {
   notifyRejectionMessage: 'Người thuê sẽ được thông báo về việc từ chối.',
   createNewRequestMessage: 'Bạn có thể tạo yêu cầu mới sau.',
   loadingRequest: 'Đang tải yêu cầu thuê...',
+  months: 'tháng',
+  requestNotFound: 'Không tìm thấy yêu cầu',
 
   // Contract Pages
   allContracts: 'Tất cả Hợp đồng',

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { zoneService } from '../services/zoneService';
 import ZoneCard from '../components/ZoneCard';
@@ -329,8 +330,11 @@ export default function ZoneListPage() {
                         e.target.style.boxShadow = 'var(--shadow-inset)';
                         e.target.style.transform = 'translateY(0)';
                       }}
+                      title="Previous page"
+                      aria-label="Previous page"
                     >
-                      ← {translations.previous}
+                      <ChevronLeft size={18} strokeWidth={2} style={{ marginRight: '0.3rem', display: 'inline' }} />
+                      {translations.previous}
                     </button>
 
                     {/* Page Numbers */}
@@ -380,8 +384,11 @@ export default function ZoneListPage() {
                         e.target.style.boxShadow = 'var(--shadow-inset)';
                         e.target.style.transform = 'translateY(0)';
                       }}
+                      title="Next page"
+                      aria-label="Next page"
                     >
-                      {translations.next} →
+                      {translations.next}
+                      <ChevronRight size={18} strokeWidth={2} style={{ marginLeft: '0.3rem', display: 'inline' }} />
                     </button>
 
                     {/* Page Info */}

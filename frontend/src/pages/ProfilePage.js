@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { HourglassIcon, Check, RefreshCw, Lock, Info, Crown, User, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import * as userService from '../services/userService';
 import DashboardCard from '../components/DashboardCard';
+import { translations } from '../utils/vietnamese-translations';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -249,53 +251,56 @@ export default function ProfilePage() {
       <div style={maxWidthWrapperStyle}>
         {/* Header */}
         <div style={headerStyle}>
-          <h1 style={titleStyle}>👤 My Profile</h1>
-          <p style={subtitleStyle}>Manage your account information and security</p>
+          <h1 style={titleStyle}>👤 {translations.myProfileTitle}</h1>
+          <p style={subtitleStyle}>{translations.manageAccountInfo}</p>
         </div>
 
         {/* User Info Card */}
         <div style={userInfoCardStyle}>
           <div style={userInfoRowStyle}>
-            <span style={userInfoLabelStyle}>Username</span>
+            <span style={userInfoLabelStyle}>{translations.username}</span>
             <span style={userInfoValueStyle}>{user?.username}</span>
           </div>
           <div style={userInfoRowStyle}>
-            <span style={userInfoLabelStyle}>Role</span>
-            <span style={userInfoValueStyle}>{user?.profile?.role === 'ADMIN' ? '👑 Admin' : '👤 Tenant'}</span>
+            <span style={userInfoLabelStyle}>{translations.role}</span>
+            <span style={{ ...userInfoValueStyle, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              {user?.profile?.role === 'ADMIN' ? <Crown size={14} strokeWidth={2} /> : <User size={14} strokeWidth={2} />}
+              {user?.profile?.role === 'ADMIN' ? 'Admin' : 'Tenant'}
+            </span>
           </div>
         </div>
 
         {/* Account Information Card */}
-        <DashboardCard title="Account Information" icon="ℹ️">
+        <DashboardCard title={translations.accountInformation} icon={<Info size={24} strokeWidth={2} />}>
           <form style={formStyle} onSubmit={handleSaveProfile}>
             <div style={fieldWrapperStyle}>
-              <label style={labelStyle}>First Name</label>
+              <label style={labelStyle}>{translations.firstName}</label>
               <input
                 type="text"
                 name="first_name"
                 value={formData.first_name}
                 onChange={handleChange}
-                placeholder="John"
+                placeholder={translations.johnPlaceholder}
                 style={{ ...inputStyle, borderColor: errors.first_name ? '#EF4444' : 'var(--color-muted)' }}
               />
               {errors.first_name && <div style={errorTextStyle}>{errors.first_name}</div>}
             </div>
 
             <div style={fieldWrapperStyle}>
-              <label style={labelStyle}>Last Name</label>
+              <label style={labelStyle}>{translations.lastName}</label>
               <input
                 type="text"
                 name="last_name"
                 value={formData.last_name}
                 onChange={handleChange}
-                placeholder="Doe"
+                placeholder={translations.doePlaceholder}
                 style={{ ...inputStyle, borderColor: errors.last_name ? '#EF4444' : 'var(--color-muted)' }}
               />
               {errors.last_name && <div style={errorTextStyle}>{errors.last_name}</div>}
             </div>
 
             <div style={fieldWrapperStyle}>
-              <label style={labelStyle}>Email</label>
+              <label style={labelStyle}>{translations.email}</label>
               <input
                 type="email"
                 value={formData.email}
@@ -303,31 +308,31 @@ export default function ProfilePage() {
                 style={disabledInputStyle}
               />
               <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
-                Email cannot be changed
+                {translations.emailCannotChange}
               </div>
             </div>
 
             <div style={fieldWrapperStyle}>
-              <label style={labelStyle}>Phone</label>
+              <label style={labelStyle}>{translations.phone}</label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="+1 (555) 123-4567"
+                placeholder={translations.phonePlaceholder}
                 style={{ ...inputStyle, borderColor: errors.phone ? '#EF4444' : 'var(--color-muted)' }}
               />
               {errors.phone && <div style={errorTextStyle}>{errors.phone}</div>}
             </div>
 
             <div style={fieldWrapperStyle}>
-              <label style={labelStyle}>Company Name</label>
+              <label style={labelStyle}>{translations.companyName}</label>
               <input
                 type="text"
                 name="company_name"
                 value={formData.company_name}
                 onChange={handleChange}
-                placeholder="Your Company Inc."
+                placeholder={translations.companyPlaceholder}
                 style={{ ...inputStyle, borderColor: errors.company_name ? '#EF4444' : 'var(--color-muted)' }}
               />
               {errors.company_name && <div style={errorTextStyle}>{errors.company_name}</div>}
@@ -350,7 +355,17 @@ export default function ProfilePage() {
                 e.target.style.transform = 'translateY(0)';
               }}
             >
-              {loading ? '⏳ Saving...' : '✓ Save Profile'}
+              {loading ? (
+                <>
+                  <HourglassIcon size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+                  {translations.saving}
+                </>
+              ) : (
+                <>
+                  <Check size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+                  {translations.saveProfile}
+                </>
+              )}
             </button>
           </form>
         </DashboardCard>
@@ -359,10 +374,10 @@ export default function ProfilePage() {
         <div style={dividerStyle}></div>
 
         {/* Password Change Card */}
-        <DashboardCard title="Change Password" icon="🔐">
+        <DashboardCard title={translations.changePassword} icon={<Lock size={24} strokeWidth={2} />}>
           <form style={formStyle} onSubmit={handleChangePassword}>
             <div style={fieldWrapperStyle}>
-              <label style={labelStyle}>Current Password</label>
+              <label style={labelStyle}>{translations.currentPassword}</label>
               <input
                 type="password"
                 name="old_password"
@@ -375,7 +390,7 @@ export default function ProfilePage() {
             </div>
 
             <div style={fieldWrapperStyle}>
-              <label style={labelStyle}>New Password</label>
+              <label style={labelStyle}>{translations.newPassword}</label>
               <input
                 type="password"
                 name="password"
@@ -388,7 +403,7 @@ export default function ProfilePage() {
             </div>
 
             <div style={fieldWrapperStyle}>
-              <label style={labelStyle}>Confirm New Password</label>
+              <label style={labelStyle}>{translations.confirmNewPassword}</label>
               <input
                 type="password"
                 name="password_confirm"
@@ -413,7 +428,17 @@ export default function ProfilePage() {
                 e.target.style.boxShadow = 'var(--shadow-inset)';
               }}
             >
-              {loading ? '⏳ Updating...' : '🔄 Change Password'}
+              {loading ? (
+                <>
+                  <HourglassIcon size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+                  {translations.updating}
+                </>
+              ) : (
+                <>
+                  <RefreshCw size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />
+                  {translations.updatePassword}
+                </>
+              )}
             </button>
           </form>
         </DashboardCard>
@@ -422,7 +447,8 @@ export default function ProfilePage() {
       {/* Snackbar Notification */}
       {snackbar.open && (
         <div style={snackbar.severity === 'success' ? snackbarSuccessStyle : snackbarErrorStyle}>
-          {snackbar.severity === 'success' ? '✓' : '✕'} {snackbar.message}
+          {snackbar.severity === 'success' ? <Check size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} /> : <AlertCircle size={16} strokeWidth={2} style={{ marginRight: '0.4rem', display: 'inline' }} />}
+          {snackbar.message}
         </div>
       )}
     </div>

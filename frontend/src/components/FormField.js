@@ -37,22 +37,23 @@ export default function FormField({
 
   const labelStyle = {
     display: 'block',
-    fontSize: '0.875rem',
-    fontWeight: '500',
+    fontSize: '0.9375rem',
+    fontWeight: '600',
     color: 'var(--color-foreground)',
-    marginBottom: '0.5rem'
+    marginBottom: '0.5rem',
+    transition: 'color 300ms cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
   const inputStyle = {
     width: '100%',
-    padding: '0.75rem 1rem',
+    padding: '0.875rem 1rem',
     borderRadius: 'var(--radius-base)',
     backgroundColor: 'var(--color-background)',
     color: 'var(--color-foreground)',
     border: 'none',
     fontFamily: '"DM Sans", sans-serif',
     fontSize: '1rem',
-    transition: 'all 300ms ease-out',
+    transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
     boxShadow: isFocused || error
       ? error
         ? 'inset 10px 10px 20px rgb(163, 177, 198, 0.7), inset -10px -10px 20px rgba(255, 255, 255, 0.6), 0 0 0 2px var(--color-background), 0 0 0 4px #EF4444'
@@ -60,7 +61,8 @@ export default function FormField({
       : 'var(--shadow-inset)',
     outline: 'none',
     opacity: disabled ? 0.5 : 1,
-    cursor: disabled ? 'not-allowed' : 'text'
+    cursor: disabled ? 'not-allowed' : 'text',
+    willChange: 'box-shadow, background-color'
   };
 
   const errorStyle = {

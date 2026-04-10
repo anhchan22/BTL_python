@@ -3,6 +3,11 @@
 *.md.claude
 memory/
 
+.opencode/
+AGENTS.md
+CLAUDE.md
+plans/ 
+
 # Node modules & build
 node_modules/
 dist/
@@ -54,3 +59,5 @@ db.sqlite3
 # React
 .next/
 out/
+
+
