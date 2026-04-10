@@ -6,6 +6,7 @@ import DashboardCard from '../components/DashboardCard';
 import StatBox from '../components/StatBox';
 import NeuNavButton from '../components/NeuNavButton';
 import NeuButton from '../components/NeuButton';
+import { translations } from '../utils/vietnamese-translations';
 
 export default function DashboardPage() {
   const { user, logout, isAdmin } = useAuth();
@@ -28,7 +29,7 @@ export default function DashboardPage() {
       setActiveContracts(contractList);
     } catch (err) {
       console.error('Failed to load contracts:', err);
-      setError('Failed to load active contracts. Please try again.');
+      setError('Tải hợp đồng hoạt động thất bại. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -254,9 +255,9 @@ export default function DashboardPage() {
         <div style={headerSectionStyle}>
           {/* Welcome Title */}
           <div style={{ marginBottom: '1.5rem' }}>
-            <h1 style={welcomeTitleStyle}>Welcome, {user?.username}! 👋</h1>
+            <h1 style={welcomeTitleStyle}>Chào mừng, {user?.username}! 👋</h1>
             <p style={subtitleStyle}>
-              {isAdmin() ? '🔧 Admin Dashboard' : '👤 Tenant Dashboard'}
+              {isAdmin() ? translations.adminDashboard : translations.tenantDashboard}
             </p>
           </div>
 
@@ -265,7 +266,7 @@ export default function DashboardPage() {
             {/* Role Stat */}
             <StatBox
               value={user?.profile?.role || 'N/A'}
-              label="Role"
+              label={translations.role}
               variant="info"
               icon="👤"
             />
@@ -273,7 +274,7 @@ export default function DashboardPage() {
             {/* Active Contracts Stat */}
             <StatBox
               value={activeContracts.length}
-              label="Active Contracts"
+              label={translations.activeContracts}
               variant="success"
               icon="📄"
             />
@@ -282,7 +283,7 @@ export default function DashboardPage() {
             {user?.profile?.company_name && (
               <StatBox
                 value={user.profile.company_name.substring(0, 15)}
-                label="Company"
+                label={translations.company}
                 variant="default"
                 icon="🏢"
               />
@@ -291,7 +292,7 @@ export default function DashboardPage() {
             {/* Email Stat */}
             <StatBox
               value={user?.email?.substring(0, 10) + '...'}
-              label="Contact"
+              label={translations.contact}
               variant="default"
               icon="✉️"
             />
@@ -306,31 +307,31 @@ export default function DashboardPage() {
               onClick={handleRetryLoadContracts}
               style={errorRetryButtonStyle}
             >
-              Try again
+              {translations.tryAgain}
             </button>
           </div>
         )}
 
         {/* ===== QUICK ACTIONS SECTION ===== */}
-        <DashboardCard title="Quick Actions" icon="⚡">
+        <DashboardCard title={translations.quickActions} icon="⚡">
           <div style={quickActionsGridStyle}>
             {/* View Industrial Zones Button */}
             <NeuNavButton
-              label="Industrial Zones"
+              label={translations.industrialZones}
               icon="🏭"
               onClick={() => navigate('/zones')}
             />
 
             {/* Rental Requests Button */}
             <NeuNavButton
-              label={isAdmin() ? 'Manage Requests' : 'My Requests'}
+              label={isAdmin() ? translations.manageRequests : translations.myRequests}
               icon="📋"
               onClick={() => navigate('/rental-requests')}
             />
 
             {/* View Contracts Button */}
             <NeuNavButton
-              label="View Contracts"
+              label={translations.viewContracts}
               icon="📄"
               onClick={() => navigate('/contracts')}
             />
@@ -338,7 +339,7 @@ export default function DashboardPage() {
             {/* Admin-only: User Management */}
             {isAdmin() && (
               <NeuNavButton
-                label="User Management"
+                label={translations.userManagement}
                 icon="👥"
                 onClick={() => navigate('/admin/users')}
               />
@@ -347,10 +348,10 @@ export default function DashboardPage() {
             {/* Admin-only: Reports (placeholder) */}
             {isAdmin() && (
               <NeuNavButton
-                label="Reports"
+                label={translations.reports}
                 icon="📊"
                 onClick={() => {
-                  alert('Reports feature coming soon!');
+                  alert(translations.reportsComingSoon);
                 }}
               />
             )}
@@ -358,10 +359,10 @@ export default function DashboardPage() {
             {/* Admin-only: Settings (placeholder) */}
             {isAdmin() && (
               <NeuNavButton
-                label="Settings"
+                label={translations.settings}
                 icon="⚙️"
                 onClick={() => {
-                  alert('Settings feature coming soon!');
+                  alert(translations.settingsComingSoon);
                 }}
               />
             )}
@@ -372,7 +373,7 @@ export default function DashboardPage() {
         {activeContracts.length > 0 && (
           <div style={{ marginBottom: '2rem' }}>
             <DashboardCard
-              title="Active Contracts"
+              title={translations.activeContracts}
               icon="📋"
               action={
                 <button
@@ -381,7 +382,7 @@ export default function DashboardPage() {
                   onMouseEnter={(e) => (e.target.style.color = 'var(--color-accent-light)')}
                   onMouseLeave={(e) => (e.target.style.color = 'var(--color-accent)')}
                 >
-                  View All →
+                  Xem tất cả →
                 </button>
               }
             >
@@ -435,10 +436,10 @@ export default function DashboardPage() {
         {/* No Active Contracts State */}
         {!loading && activeContracts.length === 0 && (
           <div style={{ marginBottom: '2rem' }}>
-            <DashboardCard title="Active Contracts" icon="📋">
+            <DashboardCard title={translations.activeContracts} icon="📋">
               <div style={noContractsStyle}>
                 <p style={{ fontSize: '1rem', marginBottom: '1rem' }}>
-                  You don't have any active contracts yet.
+                  {translations.noActiveContracts}
                 </p>
                 <button
                   onClick={() => navigate('/rental-requests')}
@@ -450,7 +451,7 @@ export default function DashboardPage() {
                     (e.target.style.color = 'var(--color-accent)')
                   }
                 >
-                  Create a Rental Request
+                  {translations.createRentalRequest}
                 </button>
               </div>
             </DashboardCard>
@@ -459,18 +460,18 @@ export default function DashboardPage() {
 
         {/* ===== USER DETAILS SECTION ===== */}
         <div style={{ marginBottom: '2rem' }}>
-          <DashboardCard title="Profile Information" icon="👤">
+          <DashboardCard title={translations.profileInformation} icon="👤">
             <div style={profileGridStyle}>
               {/* Email */}
               <div style={profileFieldStyle}>
-                <label style={profileLabelStyle}>Email</label>
+                <label style={profileLabelStyle}>{translations.email}</label>
                 <p style={profileValueStyle}>{user?.email}</p>
               </div>
 
               {/* Phone */}
               {user?.profile?.phone && (
                 <div style={profileFieldStyle}>
-                  <label style={profileLabelStyle}>Phone</label>
+                  <label style={profileLabelStyle}>{translations.phone}</label>
                   <p style={profileValueStyle}>{user.profile.phone}</p>
                 </div>
               )}
@@ -478,14 +479,14 @@ export default function DashboardPage() {
               {/* Company Name */}
               {user?.profile?.company_name && (
                 <div style={profileFieldStyle}>
-                  <label style={profileLabelStyle}>Company</label>
+                  <label style={profileLabelStyle}>{translations.company}</label>
                   <p style={profileValueStyle}>{user.profile.company_name}</p>
                 </div>
               )}
 
               {/* Role */}
               <div style={profileFieldStyle}>
-                <label style={profileLabelStyle}>Role</label>
+                <label style={profileLabelStyle}>{translations.role}</label>
                 <p style={{ ...profileValueStyle, ...profileRoleBadgeStyle }}>
                   {user?.profile?.role}
                 </p>
@@ -501,7 +502,7 @@ export default function DashboardPage() {
             size="medium"
             onClick={handleLogout}
           >
-            Logout
+            {translations.logout}
           </NeuButton>
         </div>
       </div>

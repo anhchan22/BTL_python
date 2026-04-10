@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import * as notificationService from '../services/notificationService';
+import { translations } from '../utils/vietnamese-translations';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -287,7 +288,7 @@ export default function Navbar() {
           }}
           onClick={() => navigate('/dashboard')}
         >
-          🏢 Industrial Zone Rental
+          🏢 {translations.appTitle}
         </div>
 
         {/* Desktop Nav Links */}
@@ -306,13 +307,13 @@ export default function Navbar() {
               e.target.style.boxShadow = 'none';
             }}
           >
-            🏭 Zones
+            🏭 {translations.zones}
           </button>
 
           <div style={notificationBadgeContainerStyle}>
             <button
               style={navLinkStyle}
-              onClick={() => navigate('/rentals')}
+              onClick={() => navigate('/rental-requests')}
               onMouseEnter={(e) => {
                 e.target.style.color = 'white';
                 e.target.style.backgroundColor = 'rgba(108, 99, 255, 0.2)';
@@ -324,7 +325,7 @@ export default function Navbar() {
                 e.target.style.boxShadow = 'none';
               }}
             >
-              📋 Requests
+              📋 {translations.requests}
             </button>
             {unreadCount > 0 && (
               <div style={notificationBadgeStyle}>
@@ -347,7 +348,7 @@ export default function Navbar() {
               e.target.style.boxShadow = 'none';
             }}
           >
-            📜 Contracts
+            📜 {translations.contracts}
           </button>
 
           {isAdmin && isAdmin() && (
@@ -365,7 +366,7 @@ export default function Navbar() {
                 e.target.style.boxShadow = 'none';
               }}
             >
-              👥 Manage Users
+              👥 {translations.manageUsers}
             </button>
           )}
         </div>
@@ -417,7 +418,7 @@ export default function Navbar() {
                 e.target.style.color = 'rgba(255, 255, 255, 0.9)';
               }}
             >
-              ⚙️ My Profile
+              ⚙️ {translations.myProfile}
             </button>
             <button
               style={dropdownItemStyle}
@@ -434,7 +435,7 @@ export default function Navbar() {
                 e.target.style.color = 'rgba(255, 255, 255, 0.9)';
               }}
             >
-              📊 Dashboard
+              📊 {translations.dashboard}
             </button>
             <div style={dropdownDividerStyle}></div>
             <button
@@ -449,7 +450,7 @@ export default function Navbar() {
                 e.target.style.color = 'rgba(255, 255, 255, 0.9)';
               }}
             >
-              🚪 Logout
+              🚪 {translations.logout}
             </button>
           </div>
         </div>

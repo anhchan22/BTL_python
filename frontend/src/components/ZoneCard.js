@@ -1,5 +1,6 @@
 import React from 'react';
 import ZoneImagePlaceholder from './ZoneImagePlaceholder';
+import { translations, formatPriceVND } from '../utils/vietnamese-translations';
 
 /**
  * ZoneCard - Neumorphic card for displaying zone information
@@ -149,16 +150,11 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
+    return formatPriceVND(price);
   };
 
   const formatArea = (area) => {
-    return new Intl.NumberFormat('en-US').format(Math.round(area));
+    return new Intl.NumberFormat('vi-VN').format(Math.round(area));
   };
 
   return (
@@ -198,29 +194,29 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
         {/* Specs */}
         <div style={specsStyle}>
           <span>
-            <span style={specLabelStyle}>Total Area:</span>{' '}
+            <span style={specLabelStyle}>{translations.totalAreaLabel}</span>{' '}
             <span style={specValueStyle}>{formatArea(zone.total_area)} m²</span>
           </span>
         </div>
 
         <div style={specsStyle}>
           <span>
-            <span style={specLabelStyle}>Available:</span>{' '}
+            <span style={specLabelStyle}>{translations.availableLabel}</span>{' '}
             <span style={specValueStyle}>{formatArea(zone.available_area)} m²</span>
           </span>
         </div>
 
         <div style={specsStyle}>
           <span>
-            <span style={specLabelStyle}>Price:</span>{' '}
-            <span style={specValueStyle}>{formatPrice(zone.price_per_sqm)}/m²/mo</span>
+            <span style={specLabelStyle}>{translations.priceLabel}</span>{' '}
+            <span style={specValueStyle}>{formatPrice(zone.price_per_sqm)}/m²/tháng</span>
           </span>
         </div>
 
         {/* Status */}
         <div style={statusContainerStyle}>
           <span style={statusBadgeStyle}>
-            {zone.is_available && zone.available_area > 0 ? 'AVAILABLE' : 'NOT AVAILABLE'}
+            {zone.is_available && zone.available_area > 0 ? translations.statusAvailable : translations.statusNotAvailable}
           </span>
         </div>
 
@@ -238,7 +234,7 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
               e.target.style.boxShadow = 'var(--shadow-extruded-small)';
             }}
           >
-            View Details
+            {translations.viewDetails}
           </button>
           {isAdmin && (
             <button
@@ -253,7 +249,7 @@ export default function ZoneCard({ zone, isAdmin, onViewDetails, onEdit }) {
                 e.target.style.boxShadow = 'var(--shadow-extruded-small)';
               }}
             >
-              Edit
+              {translations.edit}
             </button>
           )}
         </div>

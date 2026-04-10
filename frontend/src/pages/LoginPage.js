@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import AuthCard from '../components/AuthCard';
 import FormField from '../components/FormField';
 import NeuButton from '../components/NeuButton';
+import { translations } from '../utils/vietnamese-translations';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -95,10 +96,10 @@ export default function LoginPage() {
     <div style={containerStyle}>
       <AuthCard size="sm">
         {/* Page Title */}
-        <h1 style={titleStyle}>Industrial Zone Rental System</h1>
+        <h1 style={titleStyle}>{translations.loginTitle}</h1>
 
         {/* Subtitle */}
-        <p style={subtitleStyle}>Login to your account</p>
+        <p style={subtitleStyle}>{translations.loginSubtitle}</p>
 
         {/* Error Alert */}
         {error && (
@@ -110,22 +111,22 @@ export default function LoginPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} style={formStyle}>
           <FormField
-            label="Username"
+            label={translations.username}
             name="username"
             type="text"
             value={formData.username}
             onChange={handleChange}
-            placeholder="Enter your username"
+            placeholder={translations.enterUsername}
             required
           />
 
           <FormField
-            label="Password"
+            label={translations.password}
             name="password"
             type="password"
             value={formData.password}
             onChange={handleChange}
-            placeholder="Enter your password"
+            placeholder={translations.enterPassword}
             required
           />
 
@@ -137,15 +138,15 @@ export default function LoginPage() {
             fullWidth
             disabled={loading}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? translations.loggingIn : translations.login}
           </NeuButton>
         </form>
 
         {/* Link to Register */}
         <p style={footerStyle}>
-          Don't have an account?{' '}
+          {translations.dontHaveAccount}{' '}
           <Link to="/register" style={linkStyle}>
-            Register here
+            {translations.registerHere}
           </Link>
         </p>
       </AuthCard>

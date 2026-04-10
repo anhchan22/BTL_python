@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import AuthCard from '../components/AuthCard';
 import FormField from '../components/FormField';
 import NeuButton from '../components/NeuButton';
+import { translations } from '../utils/vietnamese-translations';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -127,13 +128,13 @@ export default function RegisterPage() {
     <div style={containerStyle}>
       <AuthCard size="lg">
         {/* Page Title */}
-        <h1 style={titleStyle}>Create Account</h1>
+        <h1 style={titleStyle}>Tạo Tài Khoản</h1>
 
         {/* Info Alert - TENANT Role */}
         <div style={infoBoxStyle}>
           <p style={infoBoxTextStyle}>
-            New accounts are created as <strong>Tenant</strong>.
-            Contact an administrator to become an Administrator.
+            Các tài khoản mới được tạo dưới dạng <strong>Người thuê</strong>.
+            Liên hệ với quản trị viên để trở thành Quản trị viên.
           </p>
         </div>
 
@@ -148,48 +149,48 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} style={formStyle}>
           {/* Required Fields Section */}
           <fieldset style={fieldsetStyle}>
-            <legend style={legendStyle}>Required Information</legend>
+            <legend style={legendStyle}>THÔNG TIN BẮT BUỘC</legend>
 
             <FormField
-              label="Username"
+              label={translations.username}
               name="username"
               type="text"
               value={formData.username}
               onChange={handleChange}
-              placeholder="Enter your username"
+              placeholder="Nhập tên đăng nhập của bạn"
               required
               error={errors.username ? errors.username[0] : ''}
             />
 
             <FormField
-              label="Email"
+              label={translations.email}
               name="email"
               type="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter your email address"
+              placeholder="Nhập địa chỉ email của bạn"
               required
               error={errors.email ? errors.email[0] : ''}
             />
 
             <FormField
-              label="Password"
+              label={translations.password}
               name="password"
               type="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter your password"
+              placeholder="Nhập mật khẩu của bạn"
               required
               error={errors.password ? errors.password[0] : ''}
             />
 
             <FormField
-              label="Confirm Password"
+              label={translations.confirmNewPassword}
               name="password_confirm"
               type="password"
               value={formData.password_confirm}
               onChange={handleChange}
-              placeholder="Confirm your password"
+              placeholder="Xác nhận mật khẩu của bạn"
               required
               error={errors.password_confirm ? errors.password_confirm[0] : ''}
             />
@@ -197,42 +198,42 @@ export default function RegisterPage() {
 
           {/* Optional Fields Section */}
           <fieldset style={fieldsetStyle}>
-            <legend style={legendStyle}>Optional Information</legend>
+            <legend style={legendStyle}>THÔNG TIN TÙY CHỌN</legend>
 
             <FormField
-              label="First Name"
+              label={translations.firstName}
               name="first_name"
               type="text"
               value={formData.first_name}
               onChange={handleChange}
-              placeholder="Enter your first name"
+              placeholder="Nhập tên của bạn"
             />
 
             <FormField
-              label="Last Name"
+              label={translations.lastName}
               name="last_name"
               type="text"
               value={formData.last_name}
               onChange={handleChange}
-              placeholder="Enter your last name"
+              placeholder="Nhập họ của bạn"
             />
 
             <FormField
-              label="Phone"
+              label={translations.phone}
               name="phone"
               type="tel"
               value={formData.phone}
               onChange={handleChange}
-              placeholder="Enter your phone number"
+              placeholder="Nhập số điện thoại của bạn"
             />
 
             <FormField
-              label="Company Name"
+              label={translations.companyName}
               name="company_name"
               type="text"
               value={formData.company_name}
               onChange={handleChange}
-              placeholder="Enter your company name (optional)"
+              placeholder="Nhập tên công ty (tùy chọn)"
             />
           </fieldset>
 
@@ -244,15 +245,15 @@ export default function RegisterPage() {
             fullWidth
             disabled={loading}
           >
-            {loading ? 'Creating Account...' : 'Register'}
+            {loading ? 'Đang tạo tài khoản...' : 'Đăng ký'}
           </NeuButton>
         </form>
 
         {/* Link to Login */}
         <p style={footerStyle}>
-          Already have an account?{' '}
+          Đã có tài khoản?{' '}
           <Link to="/login" style={linkStyle}>
-            Login here
+            Đăng nhập ở đây
           </Link>
         </p>
       </AuthCard>

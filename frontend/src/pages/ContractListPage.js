@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { contractService } from '../services/contractService';
 import StatusBadge from '../components/StatusBadge';
 import TablePagination from '../components/TablePagination';
+import { translations, formatPriceVND, formatDateVN } from '../utils/vietnamese-translations';
 
 export default function ContractListPage() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function ContractListPage() {
       setContracts(contractList);
     } catch (err) {
       console.error('Failed to load contracts:', err);
-      setError('Failed to load contracts. Please try again.');
+      setError('Tải hợp đồng thất bại. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -210,12 +211,7 @@ export default function ContractListPage() {
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price || 0);
+    return formatPriceVND(price);
   };
 
   return (
@@ -224,7 +220,7 @@ export default function ContractListPage() {
         {/* Header */}
         <div style={headerStyle}>
           <h1 style={titleStyle}>
-            {isAdmin() ? 'All Contracts' : 'My Contracts'}
+            {isAdmin() ? translations.allContracts : translations.myContracts}
           </h1>
         </div>
 
@@ -244,7 +240,7 @@ export default function ContractListPage() {
               }
             }}
           >
-            All Contracts
+            {translations.allContracts}
           </button>
           <button
             style={tabButtonStyle(tabValue === 1)}
@@ -260,7 +256,7 @@ export default function ContractListPage() {
               }
             }}
           >
-            Active Only
+            {translations.activeOnly}
           </button>
         </div>
 
@@ -269,13 +265,13 @@ export default function ContractListPage() {
           <div style={errorBoxStyle}>
             <p style={errorTextStyle}>{error}</p>
             <button style={retryButtonStyle} onClick={handleRetry}>
-              Try again
+              {translations.tryAgain}
             </button>
           </div>
         )}
 
         {/* Loading State */}
-        {loading && <div style={loadingStyle}>Loading contracts...</div>}
+        {loading && <div style={loadingStyle}>{translations.loadingContracts}</div>}
 
         {/* Table */}
         {!loading && (
@@ -286,15 +282,15 @@ export default function ContractListPage() {
                   <table style={tableStyle}>
                     <thead>
                       <tr style={rowHoverStyle}>
-                        <th style={headerCellStyle}>Contract #</th>
-                        {isAdmin() && <th style={headerCellStyle}>Tenant</th>}
-                        <th style={headerCellStyle}>Zone</th>
-                        <th style={headerCellStyle}>Area (m²)</th>
-                        <th style={headerCellStyle}>Monthly Rent</th>
-                        <th style={headerCellStyle}>Start Date</th>
-                        <th style={headerCellStyle}>End Date</th>
-                        <th style={headerCellStyle}>Status</th>
-                        <th style={headerCellStyle}>Actions</th>
+                        <th style={headerCellStyle}>{translations.contractTableHeader}</th>
+                        {isAdmin() && <th style={headerCellStyle}>{translations.tenant}</th>}
+                        <th style={headerCellStyle}>{translations.zone}</th>
+                        <th style={headerCellStyle}>{translations.area}</th>
+                        <th style={headerCellStyle}>{translations.monthlyRent}</th>
+                        <th style={headerCellStyle}>{translations.startDate}</th>
+                        <th style={headerCellStyle}>{translations.endDate}</th>
+                        <th style={headerCellStyle}>{translations.status}</th>
+                        <th style={headerCellStyle}>{translations.actions}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -314,16 +310,16 @@ export default function ContractListPage() {
                             <td style={bodyCellStyle}>{contract.tenant_info?.username || 'N/A'}</td>
                           )}
                           <td style={bodyCellStyle}>{contract.zone_info?.name || 'N/A'}</td>
-                          <td style={bodyCellStyle}>{contract.area?.toLocaleString() || 0}</td>
+                          <td style={bodyCellStyle}>{contract.area?.toLocaleString('vi-VN') || 0}</td>
                           <td style={bodyCellStyle}>{formatPrice(contract.monthly_rent)}</td>
                           <td style={bodyCellStyle}>
                             {contract.start_date
-                              ? new Date(contract.start_date).toLocaleDateString()
+                              ? formatDateVN(contract.start_date)
                               : 'N/A'}
                           </td>
                           <td style={bodyCellStyle}>
                             {contract.end_date
-                              ? new Date(contract.end_date).toLocaleDateString()
+                              ? formatDateVN(contract.end_date)
                               : 'N/A'}
                           </td>
                           <td style={bodyCellStyle}>
@@ -344,7 +340,7 @@ export default function ContractListPage() {
                                 e.target.style.transform = 'translateY(0)';
                               }}
                             >
-                              View
+                              {translations.view}
                             </button>
                           </td>
                         </tr>
@@ -362,7 +358,7 @@ export default function ContractListPage() {
               </>
             ) : (
               <div style={noResultsStyle}>
-                No contracts found
+                {translations.noContractsFound}
               </div>
             )}
           </>

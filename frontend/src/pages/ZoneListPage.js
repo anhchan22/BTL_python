@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { zoneService } from '../services/zoneService';
 import ZoneCard from '../components/ZoneCard';
 import ZoneSearchBar from '../components/ZoneSearchBar';
+import { translations } from '../utils/vietnamese-translations';
 
 export default function ZoneListPage() {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ export default function ZoneListPage() {
       setZones(zoneList);
     } catch (err) {
       console.error('Failed to load zones:', err);
-      setError('Failed to load zones. Please try again.');
+      setError('Tải khu vực thất bại. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -265,7 +266,7 @@ export default function ZoneListPage() {
       <div style={maxWidthWrapperStyle}>
         {/* Header */}
         <div style={headerStyle}>
-          <h1 style={titleStyle}>Industrial Zones</h1>
+          <h1 style={titleStyle}>{translations.industrialZones}</h1>
         </div>
 
         {/* Search Bar */}
@@ -285,13 +286,13 @@ export default function ZoneListPage() {
           <div style={errorBoxStyle}>
             <p style={errorTextStyle}>{error}</p>
             <button style={retryButtonStyle} onClick={handleRetry}>
-              Try again
+              {translations.tryAgain}
             </button>
           </div>
         )}
 
         {/* Loading State */}
-        {loading && <div style={loadingStyle}>Loading zones...</div>}
+        {loading && <div style={loadingStyle}>{translations.loadingZones}</div>}
 
         {/* Zone Grid */}
         {!loading && (
@@ -329,7 +330,7 @@ export default function ZoneListPage() {
                         e.target.style.transform = 'translateY(0)';
                       }}
                     >
-                      ← Previous
+                      ← {translations.previous}
                     </button>
 
                     {/* Page Numbers */}
@@ -380,12 +381,12 @@ export default function ZoneListPage() {
                         e.target.style.transform = 'translateY(0)';
                       }}
                     >
-                      Next →
+                      {translations.next} →
                     </button>
 
                     {/* Page Info */}
                     <span style={paginationInfoStyle}>
-                      Page {currentPage} of {totalPages}
+                      Trang {currentPage} / {totalPages}
                     </span>
                   </div>
                 )}
@@ -393,8 +394,8 @@ export default function ZoneListPage() {
             ) : (
               <div style={noResultsStyle}>
                 {zones.length === 0
-                  ? 'No zones available'
-                  : 'No zones match your search or filter criteria'}
+                  ? translations.noZonesAvailable
+                  : translations.noZonesMatch}
               </div>
             )}
           </>

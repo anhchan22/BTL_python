@@ -1,0 +1,605 @@
+# Visual Architecture & Data Flow Diagrams
+
+---
+
+## 1️⃣ Notification Badge - Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                        NAVBAR.JS                         │
+│  ┌────────────────────────────────────────────────────┐ │
+│  │ User: john_doe (ADMIN)                             │ │
+│  │ ┌──────┐  ┌──────────┐  ┌──────────┐             │ │
+│  │ │Zones │  │Requests  │  │Contracts │             │ │
+│  │ └──────┘  └──────────┘  └──────────┘             │ │
+│  │                          ┌─────────┐             │ │
+│  │                          │  👤     │ ◀──┐       │ │
+│  │                          │         │    │       │ │
+│  │                          └────┬────┘    │       │ │
+│  │                               ▼         │       │ │
+│  │                        ┌─────────────┐  │       │ │
+│  │                        │ Notification│  │       │ │
+│  │                        │   Badge(3)  │  │       │ │
+│  │                        │  🔴         │  │       │ │
+│  │                        └─────────────┘  │       │ │
+│  │                                         ▼       │ │
+│  │                              ┌──────────────┐  │ │
+│  │                              │ Dropdown Menu│  │ │
+│  │                              │ My Profile   │  │ │
+│  │                              │ Dashboard    │  │ │
+│  │                              │ Logout       │  │ │
+│  │                              └──────────────┘  │ │
+│  └────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+         │
+         ▼
+    ┌─────────────┐
+    │  useEffect  │  Polling every 30s
+    │ [30000ms]   │
+    └──────┬──────┘
+           │
+           ▼
+    ┌──────────────────────┐
+    │ GET /api/             │
+    │ notifications/        │
+    │ unread-count/         │
+    │ Headers:              │
+    │ Authorization: Bearer │
+    └──────────┬────────────┘
+               │
+               ▼
+    ┌──────────────────────┐
+    │ Response JSON        │
+    │ { "unread_count": 3 }│
+    └──────────┬────────────┘
+               │
+               ▼
+    ┌──────────────────────┐
+    │ setState({            │
+    │   unreadCount: 3      │
+    │ })                    │
+    └──────────┬────────────┘
+               │
+               ▼
+    ┌──────────────────────┐
+    │ Re-render            │
+    │ Show Badge with "3"   │
+    │ Pop Animation        │
+    └──────────────────────┘
+```
+
+### State Management
+```
+Initial:       Before Fetch:       After Fetch:       After Update:
+unreadCount    unreadCount = 0     unreadCount = 0    unreadCount = 3
+     ↓                ↓                  ↓                  ↓
+     0         (fetching...)           0         [Pop animation]
+                                                      3 🔴
+```
+
+---
+
+## 2️⃣ Image Upload - Component Flow
+
+```
+                    ZONEFORMPAGE.JS
+         ┌────────────────────────────────────────┐
+         │ ┌──────────────────────────────────┐   │
+         │ │ Zone Form                        │   │
+         │ │ ┌────────────────────────────┐   │   │
+         │ │ │ Name:     [______________] │   │   │
+         │ │ │ Location: [______________] │   │   │
+         │ │ │ Area:     [______________] │   │   │
+         │ │ └────────────────────────────┘   │   │
+         │ │                                   │   │
+         │ │ IMAGE UPLOAD SECTION (NEW)       │   │
+         │ │ ┌─────────────────────────────┐  │   │
+         │ │ │  📸 Click or Drag & Drop    │  │   │
+         │ │ │  JPG, PNG, WebP (Max 5MB)   │  │   │
+         │ │ └─────────────────────────────┘  │   │
+         │ │          │                        │   │
+         │ │          ▼ (file selected)       │   │
+         │ │                                   │   │
+         │ │ ┌─ PREVIEW GRID ─────────────┐  │   │
+         │ │ │ ┌──┐ ┌──┐ ┌──┐            │  │   │
+         │ │ │ │1 │ │2 │ │3 │            │  │   │
+         │ │ │ └──┘ └──┘ └──┘  Selected:│  │   │
+         │ │ │                   3/6     │  │   │
+         │ │ └────────────────────────────┘  │   │
+         │ │                                   │   │
+         │ │ [✓ Create Zone]  [✕ Clear All]  │   │
+         │ └──────────────────────────────────┘   │
+         └────────────────────────────────────────┘
+              │
+              ▼ (Form Submit)
+         ┌─────────────────────┐
+         │ handleSubmit()      │
+         │ ┌─────────────────┐ │
+         │ │ new FormData()  │ │
+         │ │ - name          │ │
+         │ │ - location      │ │
+         │ │ - area          │ │
+         │ │ - images[] x3   │ │
+         │ └────────┬────────┘ │
+         └──────────┼──────────┘
+                    │
+                    ▼
+         ┌──────────────────────────┐
+         │ POST /api/zones/         │
+         │ Content-Type:            │
+         │ multipart/form-data      │
+         └──────────┬───────────────┘
+                    │
+                    ▼
+         ┌──────────────────────────┐
+         │ Backend Processing       │
+         │ 1. Validate files        │
+         │ 2. Save zone             │
+         │ 3. Process images        │
+         │ 4. Return response       │
+         └──────────┬───────────────┘
+                    │
+                    ▼
+         ┌──────────────────────────┐
+         │ Response (201)           │
+         │ { id: 1,                 │
+         │   name: "Zone A",        │
+         │   images: [              │
+         │     {id:1, url:"..."},   │
+         │     {id:2, url:"..."}    │
+         │   ]                      │
+         │ }                        │
+         └──────────┬───────────────┘
+                    │
+                    ▼
+         ┌──────────────────────────┐
+         │ navigate('/zones')       │
+         └──────────────────────────┘
+```
+
+### Validation Pipeline
+```
+User Selects File
+      ↓
+┌─────────────────────────┐
+│ Validation Checks:      │
+│                         │
+├─ File Type OK? ────────→ ✓ (jpg, png, webp)
+│                         │
+├─ File Size OK? ────────→ ✓ (< 5MB)
+│                         │
+├─ Total Count OK? ──────→ ✓ (< 6 total)
+│                         │
+├─ No Duplicates? ──────→ ✓
+│                         │
+└─────────────────────────┘
+      ✓ All Pass
+      ↓
+┌──────────────────────────┐
+│ Create Object URL        │
+│ Generate Preview         │
+│ Add to State             │
+└──────────────────────────┘
+      ✓
+      ↓
+┌──────────────────────────┐
+│ Re-render Preview Grid   │
+│ Show Image Thumbnail     │
+│ Show Remove Button       │
+│ Update Counter           │
+└──────────────────────────┘
+```
+
+---
+
+## 3️⃣ Image Gallery - Carousel Flow
+
+```
+                  ZONEDETAILPAGE.JS
+         ┌────────────────────────────────────────┐
+         │ Zone: Industrial Zone A                 │
+         │ ┌──────────────────────────────────┐   │
+         │ │                                   │   │
+         │ │     ◀  [MAIN IMAGE]  ▶           │   │
+         │ │         16:9 Aspect             │   │
+         │ │     Counter: 2 / 5              │   │
+         │ │                                   │   │
+         │ └──────────────────────────────────┘   │
+         │                                        │
+         │ THUMBNAIL GRID (Responsive)            │
+         │ ┌──┐ ┌──┐ ┌──┐ ┌──┐ ┌──┐            │
+         │ │1 │ │2 │ │3 │ │4 │ │5 │            │
+         │ └──┘ └──┘ └──┘ └──┘ └──┘            │
+         │  ◀─ Selected: 2                    │
+         └────────────────────────────────────────┘
+              │        │        │        │        │
+              ▼        ▼        ▼        ▼        ▼
+         Click 1   Click 2   Click 3   Click 4  Click 5
+              │        │        ▼        │        │
+              │        │      Update    │        │
+              │        │      Selected  │        │
+              │        │      to 3      │        │
+              │        │      Re-render │        │
+              └────────┴────────┬───────┴────────┘
+                                │
+                                ▼
+                    ┌─────────────────────┐
+                    │ currentImage =      │
+                    │ images[2]           │
+                    │ (3rd image URL)     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ <img src={URL}      │
+                    │ display main image  │
+                    │ update counter      │
+                    │ "3 / 5"             │
+                    └─────────────────────┘
+```
+
+### Gallery Data Structure
+```
+API Response:
+{
+  id: 1,
+  name: "Industrial Zone A",
+  images: [
+    ┌─────────────────────────┐
+    │ id: 1                   │
+    │ url: "https://api/...1" │
+    └─────────────────────────┘
+    ┌─────────────────────────┐
+    │ id: 2                   │
+    │ url: "https://api/...2" │
+    └─────────────────────────┘
+    ┌─────────────────────────┐
+    │ id: 3                   │
+    │ url: "https://api/...3" │
+    └─────────────────────────┘
+    ...
+  ]
+}
+        ↓
+    Passed to ImageGallery component
+        ↓
+    ┌──────────────────────────┐
+    │ <ImageGallery            │
+    │   images={zone.images}   │
+    │   zoneId={zone.id}       │
+    │   zoneName={zone.name}   │
+    │ />                       │
+    └──────────────────────────┘
+```
+
+---
+
+## 4️⃣ Complete User Journey
+
+```
+USER JOURNEY: Create Zone with Images
+
+START
+  │
+  ▼
+┌─────────────────────────────┐
+│ Click "Add New Zone"        │
+│ Navigate to /zones/new      │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ ZoneFormPage Loads          │
+│ - Form fields shown         │
+│ - Upload area shown         │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ User Fills Form             │
+│ - Name: "Premium Zone"      │
+│ - Location: "District 1"    │
+│ - Area, Price, etc.         │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ User Selects 3 Images       │
+│ - Click upload area         │
+│ - Choose files              │
+│ - Or drag & drop            │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ Validation Runs             │
+│ ✓ All files < 5MB          │
+│ ✓ All files jpg/png/webp   │
+│ ✓ Total 3 images (< 6)     │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ Preview Grid Shows          │
+│ ┌──┐ ┌──┐ ┌──┐             │
+│ │1 │ │2 │ │3 │ [Remove]   │
+│ └──┘ └──┘ └──┘             │
+│ Selected: 3/6               │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ User Clicks "Create Zone"   │
+│ Form Submitted              │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ handleSubmit() Runs         │
+│ FormData Created            │
+│ Images Appended             │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ POST /api/zones/            │
+│ multipart/form-data         │
+│ - name: "Premium Zone"      │
+│ - location: "District 1"    │
+│ - images: [file1, file2...] │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ Backend Processing          │
+│ 1. Validate fields          │
+│ 2. Save zone to DB          │
+│ 3. Process images           │
+│ 4. Generate thumbnails      │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ Response 201 Created        │
+│ { id: 42,                   │
+│   name: "Premium Zone",     │
+│   images: [                 │
+│     {id:1, url:".../1.jpg"} │
+│     {id:2, url:".../2.jpg"} │
+│     {id:3, url:".../3.jpg"} │
+│   ]                         │
+│ }                           │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ navigate('/zones')          │
+│ Redirect to Zones List      │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ User Clicks Zone Card       │
+│ Navigate to /zones/42       │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ ZoneDetailPage Loads        │
+│ GET /api/zones/42/          │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ Response with Images Array  │
+│ Zone Data + Images          │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ ImageGallery Component      │
+│ Receives zone.images        │
+│ ┌──────────────────────┐    │
+│ │    [Main Image]      │    │
+│ │  ◀        ▶          │    │
+│ │    3 / 3             │    │
+│ │ ┌──┐ ┌──┐ ┌──┐      │    │
+│ │ │1 │ │2 │ │3 │      │    │
+│ │ └──┘ └──┘ └──┘      │    │
+│ └──────────────────────┘    │
+└──────────┬──────────────────┘
+           │
+           ▼
+     USER VIEWS ZONE
+     WITH IMAGES
+     
+     END
+```
+
+---
+
+## 5️⃣ State Management Map
+
+```
+NAVBAR.JS
+┌────────────────────────┐
+│ State:                 │
+│ - menuOpen (existing)  │
+│ - user (existing)      │
+│ - unreadCount (NEW)    │ ←─ Polling 30s
+│ - isPolling (NEW)      │
+└────────────────────────┘
+
+ZONEFORMPAGE.JS
+┌────────────────────────┐
+│ State:                 │
+│ - formData (existing)  │
+│ - errors (existing)    │
+│ - loading (existing)   │
+│ - selectedImages (NEW) │ ←─ File input
+│ - imageError (NEW)     │ ←─ Validation
+└────────────────────────┘
+
+ZONEDETAILPAGE.JS
+┌────────────────────────┐
+│ State:                 │
+│ - zone (existing)      │ ←─ from API
+│ - loading (existing)   │
+│ - error (existing)     │
+└────────────────────────┘
+        │
+        ├─ zone.images ──→ Passed to Gallery
+        │
+        ▼
+IMAGEGALLERY.JS
+┌────────────────────────┐
+│ State:                 │
+│ - selectedImageIndex   │ ←─ Navigation
+└────────────────────────┘
+```
+
+---
+
+## 6️⃣ File Modification Map
+
+```
+Frontend/src/
+│
+├── components/
+│   ├── Navbar.js
+│   │   ├── Add: unreadCount state (+3 lines)
+│   │   ├── Add: polling useEffect (+20 lines)
+│   │   └── Add: badge UI (+40 lines)
+│   │   Total: +63 lines
+│   │
+│   ├── ImageGallery.js
+│   │   └── Verify: No changes needed ✓
+│   │
+│   └── ... (other components unchanged)
+│
+└── pages/
+    ├── ZoneFormPage.js
+    │   ├── Add: image state (+2 lines)
+    │   ├── Add: file handlers (+60 lines)
+    │   ├── Add: upload UI section (+120 lines)
+    │   └── Update: handleSubmit (+30 lines)
+    │   Total: +212 lines
+    │
+    ├── ZoneDetailPage.js
+    │   └── Verify: Integration OK ✓
+    │
+    └── ... (other pages unchanged)
+
+TOTAL ADDITIONS: ~275 lines
+MODIFIED FILES: 2 (Navbar.js, ZoneFormPage.js)
+VERIFIED FILES: 2 (ImageGallery.js, ZoneDetailPage.js)
+```
+
+---
+
+## 7️⃣ API Call Timeline
+
+```
+TIME    EVENT
+────    ─────────────────────────────────────────────────
+
+0:00    User opens app
+        ├─ Navbar loads
+        └─ useEffect starts
+           │
+           ├─ Fetch unread count (async)
+           │  └─ Request: GET /api/notifications/unread-count/
+           │     Response: { unread_count: 3 }
+           │
+           └─ Set interval (30s)
+
+0:30    Interval fires (first 30-second poll)
+        └─ Fetch unread count again
+           └─ Request: GET /api/notifications/unread-count/
+              Response: { unread_count: 5 } (new message arrived)
+              Badge updates: 3 → 5 (animation)
+
+1:00    Interval fires (second 30-second poll)
+        └─ Fetch unread count
+           └─ Request: GET /api/notifications/unread-count/
+              Response: { unread_count: 5 } (no change)
+              Badge stays: 5
+
+...     (polling continues every 30 seconds)
+
+User Interaction: Click "Add New Zone"
+        └─ Navigate to /zones/new
+           └─ ZoneFormPage loads
+              ├─ User fills form
+              └─ User selects 3 images
+                 ├─ Validation runs (client-side)
+                 └─ Preview shows 3 thumbnails
+
+User clicks "Create Zone"
+        └─ handleSubmit() fires
+           ├─ Create FormData
+           ├─ Append 3 images
+           └─ Request: POST /api/zones/
+              Content-Type: multipart/form-data
+              Response: 201 Created
+              { id: 42, images: [...] }
+              └─ Navigate to /zones
+
+User clicks zone card
+        └─ Navigate to /zones/42
+           └─ ZoneDetailPage loads
+              ├─ Request: GET /api/zones/42/
+              │  Response: { id: 42, images: [...], ... }
+              │
+              └─ Pass images to ImageGallery
+                 └─ Display carousel with 3 images
+```
+
+---
+
+## 8️⃣ Memory Management
+
+```
+IMAGE PREVIEW OBJECT URLS
+─────────────────────────
+
+Initial State:
+┌─────────────────────┐
+│ selectedImages: []  │
+└─────────────────────┘
+
+After File Selection:
+┌─────────────────────────────────────────────────┐
+│ selectedImages: [                               │
+│   {                                             │
+│     file: File {name: "image1.jpg"},           │
+│     preview: blob:http://localhost:3000/abc123 │ ← Object URL
+│   },                                           │
+│   {                                             │
+│     file: File {name: "image2.jpg"},           │
+│     preview: blob:http://localhost:3000/def456 │ ← Object URL
+│   }                                            │
+│ ]                                               │
+└─────────────────────────────────────────────────┘
+
+After Component Unmount:
+┌─────────────────────────────┐
+│ useEffect Cleanup:          │
+│ selectedImages.forEach(img: │
+│   URL.revokeObjectURL(      │
+│     img.preview             │
+│   )                         │
+│ )                           │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────────┐
+│ Memory Freed:                           │
+│ blob:http://localhost:3000/abc123 ✓    │
+│ blob:http://localhost:3000/def456 ✓    │
+└─────────────────────────────────────────┘
+```
+
+---
+
+**Total Visual Documentation: 8 diagrams covering all aspects of implementation**
