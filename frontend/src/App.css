@@ -2,6 +2,18 @@
   text-align: center;
 }
 
+/* App wrapper - enables sticky footer */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* App content - grows to fill available space */
+.app-content {
+  flex: 1;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

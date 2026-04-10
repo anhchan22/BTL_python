@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import PrivateRoute from './components/PrivateRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -26,108 +27,113 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
-          <Navbar />
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <DashboardPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute>
-                  <ProfilePage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/admin/users"
-              element={
-                <PrivateRoute requireAdmin={true}>
-                  <UserManagementPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/zones"
-              element={
-                <PrivateRoute>
-                  <ZoneListPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/zones/create"
-              element={
-                <PrivateRoute requireAdmin={true}>
-                  <ZoneFormPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/zones/:id"
-              element={
-                <PrivateRoute>
-                  <ZoneDetailPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/zones/:id/edit"
-              element={
-                <PrivateRoute requireAdmin={true}>
-                  <ZoneFormPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/zones/:zoneId/request"
-              element={
-                <PrivateRoute>
-                  <RentalRequestFormPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/rentals"
-              element={
-                <PrivateRoute>
-                  <RentalRequestListPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/rentals/:id"
-              element={
-                <PrivateRoute>
-                  <RentalRequestDetailPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/contracts"
-              element={
-                <PrivateRoute>
-                  <ContractListPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/contracts/:id"
-              element={
-                <PrivateRoute>
-                  <ContractDetailPage />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-          </Routes>
+          <div className="app-wrapper">
+            <Navbar />
+            <div className="app-content">
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <PrivateRoute>
+                      <DashboardPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <PrivateRoute>
+                      <ProfilePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/users"
+                  element={
+                    <PrivateRoute requireAdmin={true}>
+                      <UserManagementPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/zones"
+                  element={
+                    <PrivateRoute>
+                      <ZoneListPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/zones/create"
+                  element={
+                    <PrivateRoute requireAdmin={true}>
+                      <ZoneFormPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/zones/:id"
+                  element={
+                    <PrivateRoute>
+                      <ZoneDetailPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/zones/:id/edit"
+                  element={
+                    <PrivateRoute requireAdmin={true}>
+                      <ZoneFormPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/zones/:zoneId/request"
+                  element={
+                    <PrivateRoute>
+                      <RentalRequestFormPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/rentals"
+                  element={
+                    <PrivateRoute>
+                      <RentalRequestListPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/rentals/:id"
+                  element={
+                    <PrivateRoute>
+                      <RentalRequestDetailPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/contracts"
+                  element={
+                    <PrivateRoute>
+                      <ContractListPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/contracts/:id"
+                  element={
+                    <PrivateRoute>
+                      <ContractDetailPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route path="/" element={<Navigate to="/dashboard" />} />
+              </Routes>
+            </div>
+            <Footer />
+          </div>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>

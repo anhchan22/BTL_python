@@ -91,6 +91,26 @@
 
   /* Easing function - natural deceleration */
   --easing-default: ease-out;
+
+  /* Enhanced animation tokens for snappy feel */
+  --easing-snappy: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-smooth: cubic-bezier(0.3, 0, 0.2, 1);
+  --easing-ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+
+  /* Deep shadow variations for layered depth */
+  --shadow-deep-xs: 0 5px 8px -2px rgba(0, 0, 0, 0.08);
+  --shadow-deep-sm: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-deep-md: 0 20px 25px -5px rgba(0, 0, 0, 0.12);
+  --shadow-deep-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+
+  /* Accent glow for premium feel */
+  --shadow-accent-glow: 0 0 0 1px rgba(108, 99, 255, 0.1);
+  --shadow-accent-glow-hover: 0 0 0 2px rgba(108, 99, 255, 0.2);
+
+  /* Transform animations */
+  --transform-lift-sm: translateY(-2px) scale(1.01);
+  --transform-lift-md: translateY(-5px) scale(1.02);
+  --transform-lift-lg: translateY(-8px) scale(1.03);
 }
 
 /* Reduced motion: Respect user preference */
@@ -306,8 +326,9 @@ button {
 }
 
 button:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-extruded-hover);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--shadow-deep-md), var(--shadow-accent-glow);
+  transition: all 350ms var(--easing-snappy);
 }
 
 button:active {
@@ -331,7 +352,11 @@ button.btn-primary {
 
 button.btn-primary:hover {
   background-color: var(--color-accent-light);
-  box-shadow: var(--shadow-extruded-hover);
+  box-shadow: 0 20px 25px -5px rgba(108, 99, 255, 0.3),
+              0 10px 10px -5px rgba(108, 99, 255, 0.2),
+              var(--shadow-accent-glow-hover);
+  transform: translateY(-3px) scale(1.02);
+  transition: all 350ms var(--easing-snappy);
 }
 
 button.btn-primary:active {
@@ -432,8 +457,9 @@ button:focus-visible {
 }
 
 .neu-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-extruded-hover);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: var(--shadow-deep-lg), var(--shadow-accent-glow);
+  transition: all 350ms var(--easing-snappy);
 }
 
 .neu-input {
@@ -470,6 +496,41 @@ button:focus-visible {
   max-width: 80rem;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* =============================================================================
+   Premium Hover Effect Utilities
+   ============================================================================= */
+
+/* Premium hover lift effect */
+.hover-lift {
+  transition: all 350ms var(--easing-snappy);
+}
+
+.hover-lift:hover {
+  transform: var(--transform-lift-md);
+  box-shadow: var(--shadow-deep-md), var(--shadow-accent-glow);
+}
+
+/* Interactive transform with deep feedback */
+.interactive-transform {
+  transition: all 350ms var(--easing-snappy);
+  position: relative;
+}
+
+.interactive-transform:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.1),
+              0 8px 10px -3px rgba(0, 0, 0, 0.06),
+              var(--shadow-accent-glow);
+}
+
+/* GPU acceleration for smooth animations */
+.interactive-transform,
+.hover-lift,
+.neu-card {
+  will-change: transform, box-shadow;
+  contain: layout style paint;
 }
 
 /* =============================================================================
